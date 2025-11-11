@@ -1,7 +1,7 @@
-/* =================== STATE & STORAGE =================== */
 const state = {
   currentUser: null,
   selectedUserType: null,
+  selectedTransportType: null,
   selectedTier: null,
   users: [],
   donations: [],
@@ -9,6 +9,37 @@ const state = {
   volunteerInstitutions: [],
   notifications: []
 };
+
+const bell = {
+  list: [],
+  unread: 0
+};
+
+// Definição dos planos por tipo de usuário
+const PLANS = {
+  doador: [
+    { id: 'bronze', name: 'Bronze', price: 49.90, badge: 'Comece já' },
+    { id: 'ouro', name: 'Ouro', price: 99.90, badge: 'Mais popular' },
+    { id: 'diamante', name: 'Diamante', price: 199.90, badge: 'Premium' }
+  ],
+  recebedor: [
+    { id: 'bronze', name: 'Bronze', price: 39.90, badge: 'Ideal para iniciar' },
+    { id: 'ouro', name: 'Ouro', price: 89.90, badge: 'Recomendado' },
+    { id: 'diamante', name: 'Diamante', price: 179.90, badge: 'Empresarial' }
+  ],
+  transportador: [
+    { id: 'transportador', name: 'Transportador', price: 9.90, badge: 'Taxa única', isUnique: true }
+  ]
+};
+
+// Taxas de frete por tipo de veículo (por km)
+const FREIGHT_RATES = {
+  moto: 7.90,
+  carro: 9.90,
+  caminhao: 12.90
+};
+
+const ECOLINK_COMMISSION = 0.20; // 20%
 
 function loadFromLocalStorage() {
   const saved = localStorage.getItem('ecolinkData');
@@ -31,31 +62,159 @@ function saveToLocalStorage() {
   localStorage.setItem('ecolinkData', JSON.stringify(data));
 }
 
-/* =================== UI HELPERS =================== */
+// Função para navegar entre telas com suporte a hash
 function showScreen(screenId, evt) {
-  document.querySelectorAll('.screen').forEach((s) => s.classList.remove('active'));
-  document.querySelectorAll('.nav-tab').forEach((t) => t.classList.remove('active'));
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
   document.getElementById(screenId).classList.add('active');
   if (evt && evt.currentTarget) evt.currentTarget.classList.add('active');
+  
+  // Atualiza o hash da URL
+  window.location.hash = screenId;
 }
+
+// Detecta navegação por hash ao carregar a página
+window.addEventListener('DOMContentLoaded', function() {
+  const hash = window.location.hash.substring(1); // Remove o #
+  if (hash === 'login' || hash === 'register') {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+    document.getElementById(hash).classList.add('active');
+    document.getElementById(hash + 'Tab').classList.add('active');
+  } else {
+    // Padrão: mostrar login
+    showScreen('login');
+  }
+});
+
+// Detecta mudanças no hash
+window.addEventListener('hashchange', function() {
+  const hash = window.location.hash.substring(1);
+  if (hash === 'login' || hash === 'register') {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+    document.getElementById(hash).classList.add('active');
+    document.getElementById(hash + 'Tab').classList.add('active');
+  }
+});
 
 function selectUserType(type, evt) {
   state.selectedUserType = type;
-  document.querySelectorAll('.tier-card').forEach((c) => c.classList.remove('selected'));
+  document.querySelectorAll('.tier-card').forEach(c => c.classList.remove('selected'));
   if (evt && evt.currentTarget) evt.currentTarget.classList.add('selected');
+
+  document.getElementById('transportTypeSelection').style.display = 'none';
+  document.getElementById('tierSelection').style.display = 'none';
+  document.getElementById('registerForm').style.display = 'none';
+
+  if (type === 'transportador') {
+    document.getElementById('transportTypeSelection').style.display = 'block';
+  } else {
+    renderPlanCards(type);
+    document.getElementById('tierSelection').style.display = 'block';
+  }
+}
+
+function selectTransportType(type, evt) {
+  state.selectedTransportType = type;
+  document.querySelectorAll('.transport-type').forEach(c => c.classList.remove('selected'));
+  if (evt && evt.currentTarget) evt.currentTarget.classList.add('selected');
+  renderPlanCards('transportador');
   document.getElementById('tierSelection').style.display = 'block';
+}
+
+function renderPlanCards(userType) {
+  const container = document.getElementById('planCards');
+  const plans = PLANS[userType] || [];
+  
+  container.innerHTML = '';
+  
+  plans.forEach(plan => {
+    const card = document.createElement('div');
+    card.className = 'tier-card';
+    if (plan.id === 'ouro') card.classList.add('gold');
+    if (plan.id === 'diamante') card.classList.add('diamond');
+    card.onclick = (e) => selectTier(plan.id, e);
+    
+    let priceText = plan.isUnique 
+      ? `R$ ${plan.price.toFixed(2).replace('.', ',')}` 
+      : `R$ ${plan.price.toFixed(2).replace('.', ',')}/mês`;
+    
+    card.innerHTML = `
+      <div class="tier-icon">${plan.id === 'bronze' ? '⭐' : plan.id === 'ouro' ? '🥇' : plan.id === 'diamante' ? '💎' : '🚚'}</div>
+      <h3>${plan.name}</h3>
+      <p>${plan.badge}</p>
+      <div class="plan-price">${priceText}</div>
+    `;
+    
+    container.appendChild(card);
+  });
 }
 
 function selectTier(tier, evt) {
   state.selectedTier = tier;
-  document.querySelectorAll('#tierSelection .tier-card').forEach((c) => c.classList.remove('selected'));
+  document.querySelectorAll('#tierSelection .tier-card').forEach(c => c.classList.remove('selected'));
   if (evt && evt.currentTarget) evt.currentTarget.classList.add('selected');
+  
   document.getElementById('registerForm').style.display = 'block';
+  
+  const userType = state.selectedUserType;
+  const plans = PLANS[userType];
+  const selectedPlan = plans.find(p => p.id === tier);
+  
+  if (!selectedPlan) return;
+  
+  const priceText = selectedPlan.isUnique 
+    ? `R$ ${selectedPlan.price.toFixed(2).replace('.', ',')} (taxa única)` 
+    : `R$ ${selectedPlan.price.toFixed(2).replace('.', ',')}/mês`;
+  
+  document.getElementById('selectedPlanName').textContent = selectedPlan.name;
+  document.getElementById('selectedPlanPrice').textContent = ` - ${priceText}`;
+  document.getElementById('planSummary').style.display = 'flex';
+  
+  const paymentSection = document.getElementById('paymentSection');
+  const submitBtn = document.getElementById('submitBtn');
+  
+  // Pagamento necessário para todos exceto taxa única de transportador
+  if (!selectedPlan.isUnique) {
+    paymentSection.style.display = 'block';
+    submitBtn.textContent = 'Finalizar Cadastro e Pagamento';
+    document.getElementById('cardNumber').required = true;
+    document.getElementById('cardName').required = true;
+    document.getElementById('cardExpiry').required = true;
+    document.getElementById('cardCvv').required = true;
+  } else {
+    paymentSection.style.display = 'block'; // Mostra para o pagamento da taxa única
+    submitBtn.textContent = 'Finalizar Cadastro e Pagamento';
+    document.getElementById('cardNumber').required = true;
+    document.getElementById('cardName').required = true;
+    document.getElementById('cardExpiry').required = true;
+    document.getElementById('cardCvv').required = true;
+  }
+  
+  if (state.selectedUserType === 'transportador') {
+    document.getElementById('vehicleFields').style.display = 'block';
+    document.getElementById('cnhFields').style.display = 'block';
+    document.getElementById('regRenavam').required = true;
+    document.getElementById('regPlaca').required = true;
+    document.getElementById('regModelo').required = true;
+    document.getElementById('regAno').required = true;
+    document.getElementById('regCor').required = true;
+    document.getElementById('regCnhNumero').required = true;
+    document.getElementById('regCnhCategoria').required = true;
+    document.getElementById('regCnhValidade').required = true;
+  } else {
+    document.getElementById('vehicleFields').style.display = 'none';
+    document.getElementById('cnhFields').style.display = 'none';
+  }
+  
+  document.getElementById('registerForm').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 function checkPasswordStrength(password) {
   const strengthEl = document.getElementById('passwordStrength');
   let strength = 0;
+
   if (password.length >= 8) strength++;
   if (/[a-z]/.test(password) && /[A-Z]/.test(password)) strength++;
   if (/\d/.test(password)) strength++;
@@ -73,52 +232,58 @@ function checkPasswordStrength(password) {
   }
 }
 
-/* =================== CEP =================== */
+function validateRenavam(renavam) {
+  const statusEl = document.getElementById('renavamStatus');
+  const cleaned = renavam.replace(/\D/g, '');
+  
+  if (cleaned.length === 11) {
+    statusEl.textContent = '✓ RENAVAM válido';
+    statusEl.className = 'renavam-status renavam-ok';
+  } else if (cleaned.length > 0) {
+    statusEl.textContent = '✗ RENAVAM deve ter 11 dígitos';
+    statusEl.className = 'renavam-status renavam-bad';
+  } else {
+    statusEl.textContent = '';
+  }
+}
+
+function formatCardNumber(input) {
+  let value = input.value.replace(/\D/g, '');
+  value = value.replace(/(\d{4})(?=\d)/g, '$1 ');
+  input.value = value;
+}
+
+function formatExpiry(input) {
+  let value = input.value.replace(/\D/g, '');
+  if (value.length >= 2) {
+    value = value.substring(0, 2) + '/' + value.substring(2, 4);
+  }
+  input.value = value;
+}
+
 async function buscarCep(cep) {
   const cepLimpo = cep.replace(/\D/g, '');
   if (cepLimpo.length !== 8) return;
 
   document.getElementById('cepLoading').style.display = 'block';
+
   try {
-    const r = await fetch(`https://viacep.com.br/ws/${cepLimpo}/json/`);
-    const data = await r.json();
+    const response = await fetch(`https://viacep.com.br/ws/${cepLimpo}/json/`);
+    const data = await response.json();
+
     if (!data.erro) {
       document.getElementById('regLogradouro').value = data.logradouro || '';
       document.getElementById('regBairro').value = data.bairro || '';
       document.getElementById('regCidade').value = data.localidade || '';
       document.getElementById('regEstado').value = data.uf || '';
     }
-  } catch (e) {
-    console.error('Erro ao buscar CEP:', e);
+  } catch (error) {
+    console.error('Erro ao buscar CEP:', error);
   } finally {
     document.getElementById('cepLoading').style.display = 'none';
   }
 }
 
-async function buscarCepVolunteer(cep, type) {
-  const cepLimpo = cep.replace(/\D/g, '');
-  if (cepLimpo.length !== 8) return;
-
-  try {
-    const r = await fetch(`https://viacep.com.br/ws/${cepLimpo}/json/`);
-    const data = await r.json();
-    if (!data.erro) {
-      if (type === 'donor') {
-        document.getElementById('volDonorLogradouro').value = data.logradouro || '';
-        document.getElementById('volDonorBairro').value = data.bairro || '';
-        document.getElementById('volDonorCidade').value = data.localidade || '';
-      } else {
-        document.getElementById('volInstLogradouro').value = data.logradouro || '';
-        document.getElementById('volInstBairro').value = data.bairro || '';
-        document.getElementById('volInstCidade').value = data.localidade || '';
-      }
-    }
-  } catch (e) {
-    console.error('Erro ao buscar CEP:', e);
-  }
-}
-
-/* =================== AUTH & REGISTRO =================== */
 function handleRegister(e) {
   e.preventDefault();
 
@@ -140,25 +305,67 @@ function handleRegister(e) {
 
   const fullAddress = `${address.logradouro}, ${address.numero}${address.complemento ? ', ' + address.complemento : ''}, ${address.bairro}, ${address.cidade}, ${address.estado}, ${address.cep}`;
 
+  const userType = state.selectedUserType;
+  const plans = PLANS[userType];
+  const selectedPlan = plans.find(p => p.id === state.selectedTier);
+
   const user = {
     id: Date.now(),
     name: document.getElementById('regName').value,
     document: document.getElementById('regDoc').value,
     email: document.getElementById('regEmail').value,
     phone: document.getElementById('regPhone').value,
-    address,
-    fullAddress,
+    address: address,
+    fullAddress: fullAddress,
     username: document.getElementById('regUsername').value,
-    password,
+    password: password,
     type: state.selectedUserType,
     tier: state.selectedTier,
+    planPrice: selectedPlan.price,
     createdAt: new Date().toISOString()
+  };
+
+  if (state.selectedUserType === 'transportador') {
+    user.transportType = state.selectedTransportType;
+    user.freightRate = FREIGHT_RATES[state.selectedTransportType];
+    user.vehicle = {
+      renavam: document.getElementById('regRenavam').value,
+      placa: document.getElementById('regPlaca').value,
+      modelo: document.getElementById('regModelo').value,
+      ano: document.getElementById('regAno').value,
+      cor: document.getElementById('regCor').value
+    };
+    user.cnh = {
+      numero: document.getElementById('regCnhNumero').value,
+      categoria: document.getElementById('regCnhCategoria').value,
+      validade: document.getElementById('regCnhValidade').value
+    };
+  }
+
+  user.payment = {
+    cardNumber: document.getElementById('cardNumber').value.replace(/\s/g, '').slice(-4),
+    cardName: document.getElementById('cardName').value,
+    cardExpiry: document.getElementById('cardExpiry').value,
+    paymentDate: new Date().toISOString(),
+    status: 'active'
   };
 
   state.users.push(user);
   saveToLocalStorage();
-  alert('Cadastro realizado com sucesso!');
+  
+  const successMsg = selectedPlan.isUnique 
+    ? `Cadastro realizado com sucesso! Taxa única de R$ ${selectedPlan.price.toFixed(2)} processada. Bem-vindo à Ecolink!`
+    : `Cadastro realizado com sucesso! Plano ${selectedPlan.name} (R$ ${selectedPlan.price.toFixed(2)}/mês) ativado. Bem-vindo à Ecolink!`;
+  
+  alert(successMsg);
+  
   document.getElementById('registerForm').reset();
+  document.getElementById('tierSelection').style.display = 'none';
+  document.getElementById('transportTypeSelection').style.display = 'none';
+  document.getElementById('registerForm').style.display = 'none';
+  document.getElementById('planSummary').style.display = 'none';
+  document.getElementById('paymentSection').style.display = 'none';
+  document.querySelectorAll('.tier-card').forEach(c => c.classList.remove('selected'));
   showScreen('login');
 }
 
@@ -167,16 +374,18 @@ function handleLogin(e) {
   const username = document.getElementById('loginUser').value;
   const password = document.getElementById('loginPassword').value;
 
-  const user = state.users.find((u) => u.username === username && u.password === password);
+  const user = state.users.find(u => u.username === username && u.password === password);
+
   if (user) {
     state.currentUser = user;
     loadDashboard();
+    hideAuthTabs();
+    requestNotificationPermissionOnce();
   } else {
     alert('Usuário ou senha incorretos!');
   }
 }
 
-/* =================== DASHBOARDS =================== */
 function calculateEcoImpact(weight) {
   return {
     co2: (weight * 15.3).toFixed(2),
@@ -187,10 +396,15 @@ function calculateEcoImpact(weight) {
 
 function loadDashboard() {
   document.getElementById('userName').textContent = state.currentUser.name;
-  document.getElementById('userType').textContent =
-    `${state.currentUser.type[0].toUpperCase()}${state.currentUser.type.slice(1)} - Plano ${state.currentUser.tier[0].toUpperCase()}${state.currentUser.tier.slice(1)}`;
+  let typeText = `${state.currentUser.type.charAt(0).toUpperCase() + state.currentUser.type.slice(1)} - Plano ${state.currentUser.tier.charAt(0).toUpperCase() + state.currentUser.tier.slice(1)}`;
+  
+  if (state.currentUser.transportType) {
+    typeText += ` (${state.currentUser.transportType.charAt(0).toUpperCase() + state.currentUser.transportType.slice(1)})`;
+  }
+  
+  document.getElementById('userType').textContent = typeText;
 
-  document.querySelectorAll('.screen').forEach((s) => s.classList.remove('active'));
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById('dashboard').classList.add('active');
 
   document.getElementById('doadorDash').style.display = 'none';
@@ -207,11 +421,12 @@ function loadDashboard() {
     document.getElementById('transportadorDash').style.display = 'block';
     loadTransportadorDashboard();
   }
+  
+  renderNotifications();
 }
 
-/* ===== DOADOR ===== */
 function loadDoadorDashboard() {
-  const userDonations = state.donations.filter((d) => d.donorId === state.currentUser.id);
+  const userDonations = state.donations.filter(d => d.donorId === state.currentUser.id);
   const totalWeight = userDonations.reduce((sum, d) => sum + parseFloat(d.weight), 0);
   const ecoImpact = calculateEcoImpact(totalWeight);
 
@@ -221,11 +436,12 @@ function loadDoadorDashboard() {
 
   document.getElementById('totalDonations').textContent = userDonations.length;
   document.getElementById('totalWeight').textContent = totalWeight.toFixed(3);
-  document.getElementById('pendingDonations').textContent = userDonations.filter((d) => d.status !== 'completed').length;
+  document.getElementById('pendingDonations').textContent = userDonations.filter(d => d.status !== 'completed').length;
 
   const tbody = document.querySelector('#donationsTable tbody');
   tbody.innerHTML = '';
-  userDonations.forEach((donation) => {
+
+  userDonations.forEach(donation => {
     const tr = document.createElement('tr');
     tr.innerHTML = `
       <td data-label="ID">#${donation.id}</td>
@@ -233,16 +449,14 @@ function loadDoadorDashboard() {
       <td data-label="Peso (kg)">${donation.weight}</td>
       <td data-label="Data">${new Date(donation.createdAt).toLocaleDateString()}</td>
       <td data-label="Status"><span class="badge badge-${donation.status}">${donation.status}</span></td>
-      <td data-label="Ações">
-        <button class="btn btn-info" onclick="viewTracking(${donation.id})">Rastrear</button>
-      </td>`;
+      <td data-label="Ações"><button class="btn btn-info" onclick="viewTracking(${donation.id})">Rastrear</button></td>
+    `;
     tbody.appendChild(tr);
   });
 }
 
-/* ===== RECEBEDOR ===== */
 function loadRecebedorDashboard() {
-  const receivedDonations = state.donations.filter((d) => d.receiverId === state.currentUser.id);
+  const receivedDonations = state.donations.filter(d => d.receiverId === state.currentUser.id);
   const totalWeight = receivedDonations.reduce((sum, d) => sum + parseFloat(d.weight), 0);
   const ecoImpact = calculateEcoImpact(totalWeight);
 
@@ -252,19 +466,19 @@ function loadRecebedorDashboard() {
 
   document.getElementById('totalReceived').textContent = receivedDonations.length;
   document.getElementById('receivedWeight').textContent = totalWeight.toFixed(3);
-  document.getElementById('pendingReceive').textContent = receivedDonations.filter((d) => !d.receiverConfirmed).length;
+  document.getElementById('pendingReceive').textContent = receivedDonations.filter(d => !d.receiverConfirmed).length;
 
-  // Notificações (doações ainda sem recebedor)
   const notificationsDiv = document.getElementById('receiverNotifications');
   notificationsDiv.innerHTML = '';
-  const pendingDonations = state.donations.filter((d) => !d.receiverId);
+
+  const pendingDonations = state.donations.filter(d => !d.receiverId);
 
   if (pendingDonations.length === 0) {
-    notificationsDiv.innerHTML = '<p style="text-align:center;color:#6c757d;">Nenhuma notificação no momento</p>';
+    notificationsDiv.innerHTML = '<p style="text-align: center; color: #6c757d;">Nenhuma notificação no momento</p>';
   }
 
-  pendingDonations.forEach((donation) => {
-    const donor = state.users.find((u) => u.id === donation.donorId);
+  pendingDonations.forEach(donation => {
+    const donor = state.users.find(u => u.id === donation.donorId);
     const notif = document.createElement('div');
     notif.className = 'notification warning';
     notif.innerHTML = `
@@ -280,14 +494,15 @@ function loadRecebedorDashboard() {
         <button class="btn btn-danger" onclick="refuseDonation(${donation.id})">Recusar</button>
         <button class="btn btn-info" onclick="acceptDonationSelf(${donation.id})">Recolher por Conta</button>
         <button class="btn btn-primary" onclick="acceptDonationEcolink(${donation.id})">Recolher pela Ecolink</button>
-      </div>`;
+      </div>
+    `;
     notificationsDiv.appendChild(notif);
   });
 
-  // Tabela "Minhas Operações" com rastreio
   const tbody = document.querySelector('#receiverDonationsTable tbody');
   tbody.innerHTML = '';
-  receivedDonations.forEach((donation) => {
+
+  receivedDonations.forEach(donation => {
     const tr = document.createElement('tr');
     tr.innerHTML = `
       <td data-label="ID">#${donation.id}</td>
@@ -295,16 +510,14 @@ function loadRecebedorDashboard() {
       <td data-label="Peso (kg)">${donation.weight}</td>
       <td data-label="Data">${new Date(donation.createdAt).toLocaleDateString()}</td>
       <td data-label="Status"><span class="badge badge-${donation.status}">${donation.status}</span></td>
-      <td data-label="Ações">
-        <button class="btn btn-info" onclick="viewTracking(${donation.id})">Rastrear</button>
-      </td>`;
+      <td data-label="Ações"><button class="btn btn-info" onclick="viewTracking(${donation.id})">Rastrear</button></td>
+    `;
     tbody.appendChild(tr);
   });
 }
 
-/* ===== TRANSPORTADOR ===== */
 function loadTransportadorDashboard() {
-  const deliveries = state.donations.filter((d) => d.transporterId === state.currentUser.id);
+  const deliveries = state.donations.filter(d => d.transporterId === state.currentUser.id);
   const totalWeight = deliveries.reduce((sum, d) => sum + parseFloat(d.weight), 0);
   const distance = deliveries.length * 15;
   const ecoImpact = calculateEcoImpact(totalWeight);
@@ -313,22 +526,22 @@ function loadTransportadorDashboard() {
   document.getElementById('co2SavedTrans').textContent = ecoImpact.co2;
   document.getElementById('materialTransported').textContent = totalWeight.toFixed(3);
 
-  document.getElementById('totalDeliveries').textContent = deliveries.filter((d) => d.transportDelivered).length;
-  document.getElementById('ongoingDeliveries').textContent = deliveries.filter((d) => !d.transportDelivered).length;
+  document.getElementById('totalDeliveries').textContent = deliveries.filter(d => d.transportDelivered).length;
+  document.getElementById('ongoingDeliveries').textContent = deliveries.filter(d => !d.transportDelivered).length;
   document.getElementById('totalDistance').textContent = distance.toFixed(1);
 
-  // Solicitações em aberto
   const notificationsDiv = document.getElementById('transportNotifications');
   notificationsDiv.innerHTML = '';
-  const pendingTransports = state.donations.filter((d) => d.needsTransport && !d.transporterId);
+
+  const pendingTransports = state.donations.filter(d => d.needsTransport && !d.transporterId);
 
   if (pendingTransports.length === 0) {
-    notificationsDiv.innerHTML = '<p style="text-align:center;color:#6c757d;">Nenhuma solicitação no momento</p>';
+    notificationsDiv.innerHTML = '<p style="text-align: center; color: #6c757d;">Nenhuma solicitação no momento</p>';
   }
 
-  pendingTransports.forEach((donation) => {
-    const donor = state.users.find((u) => u.id === donation.donorId);
-    const receiver = state.users.find((u) => u.id === donation.receiverId);
+  pendingTransports.forEach(donation => {
+    const donor = state.users.find(u => u.id === donation.donorId);
+    const receiver = state.users.find(u => u.id === donation.receiverId);
     const notif = document.createElement('div');
     notif.className = 'notification';
     notif.innerHTML = `
@@ -343,14 +556,15 @@ function loadTransportadorDashboard() {
       <div class="notification-actions">
         <button class="btn btn-danger" onclick="refuseTransport(${donation.id})">Recusar</button>
         <button class="btn btn-primary" onclick="acceptTransport(${donation.id})">Aceitar</button>
-      </div>`;
+      </div>
+    `;
     notificationsDiv.appendChild(notif);
   });
 
-  // Tabela "Minhas Entregas" com rastreio
   const tbody = document.querySelector('#transporterDonationsTable tbody');
   tbody.innerHTML = '';
-  deliveries.forEach((donation) => {
+
+  deliveries.forEach(donation => {
     const tr = document.createElement('tr');
     tr.innerHTML = `
       <td data-label="ID">#${donation.id}</td>
@@ -358,14 +572,12 @@ function loadTransportadorDashboard() {
       <td data-label="Peso (kg)">${donation.weight}</td>
       <td data-label="Data">${new Date(donation.createdAt).toLocaleDateString()}</td>
       <td data-label="Status"><span class="badge badge-${donation.status}">${donation.status}</span></td>
-      <td data-label="Ações">
-        <button class="btn btn-info" onclick="viewTracking(${donation.id})">Rastrear</button>
-      </td>`;
+      <td data-label="Ações"><button class="btn btn-info" onclick="viewTracking(${donation.id})">Rastrear</button></td>
+    `;
     tbody.appendChild(tr);
   });
 }
 
-/* =================== AÇÕES =================== */
 function submitDonation(e) {
   e.preventDefault();
 
@@ -389,83 +601,27 @@ function submitDonation(e) {
 
   state.donations.push(donation);
   saveToLocalStorage();
+  
+  pushNotification({
+    title: 'Doação registrada',
+    message: 'Recebedores foram notificados. Acompanhe o status pelo rastreio.',
+    link: `tracking:${donation.id}`
+  });
+  
   alert('Doação registrada com sucesso! Os recebedores foram notificados.');
   closeModal('newDonationModal');
   document.getElementById('newDonationModal').querySelector('form').reset();
   loadDoadorDashboard();
 }
 
-/* Voluntariado */
-function showVolunteerForm(type) {
-  document.getElementById('volunteerDonorForm').style.display = 'none';
-  document.getElementById('volunteerInstitutionForm').style.display = 'none';
-  document.getElementById(type === 'doador' ? 'volunteerDonorForm' : 'volunteerInstitutionForm').style.display = 'block';
-}
-
-function submitVolunteerDonation(e) {
-  e.preventDefault();
-  const address = {
-    cep: document.getElementById('volDonorCep').value,
-    logradouro: document.getElementById('volDonorLogradouro').value,
-    numero: document.getElementById('volDonorNumero').value,
-    bairro: document.getElementById('volDonorBairro').value,
-    cidade: document.getElementById('volDonorCidade').value
-  };
-  const volunteerDonation = {
-    id: Date.now(),
-    name: document.getElementById('volDonorName').value,
-    phone: document.getElementById('volDonorPhone').value,
-    email: document.getElementById('volDonorEmail').value,
-    address,
-    fullAddress: `${address.logradouro}, ${address.numero}, ${address.bairro}, ${address.cidade}, ${address.cep}`,
-    description: document.getElementById('volDonorDescription').value,
-    status: 'pending',
-    createdAt: new Date().toISOString()
-  };
-  state.volunteerDonations.push(volunteerDonation);
-  saveToLocalStorage();
-  alert('Solicitação de recolhimento enviada com sucesso! A Ecolink entrará em contato em breve.');
-  closeModal('volunteerModal');
-  document.getElementById('volunteerDonorForm').reset();
-}
-
-function submitVolunteerInstitution(e) {
-  e.preventDefault();
-  const address = {
-    cep: document.getElementById('volInstCep').value,
-    logradouro: document.getElementById('volInstLogradouro').value,
-    numero: document.getElementById('volInstNumero').value,
-    bairro: document.getElementById('volInstBairro').value,
-    cidade: document.getElementById('volInstCidade').value
-  };
-  const institution = {
-    id: Date.now(),
-    name: document.getElementById('volInstName').value,
-    cnpj: document.getElementById('volInstCnpj').value,
-    email: document.getElementById('volInstEmail').value,
-    phone: document.getElementById('volInstPhone').value,
-    address,
-    fullAddress: `${address.logradouro}, ${address.numero}, ${address.bairro}, ${address.cidade}, ${address.cep}`,
-    description: document.getElementById('volInstDescription').value,
-    createdAt: new Date().toISOString()
-  };
-  state.volunteerInstitutions.push(institution);
-  saveToLocalStorage();
-  alert('Instituição cadastrada com sucesso! Você receberá notificações sobre doações disponíveis.');
-  closeModal('volunteerModal');
-  document.getElementById('volunteerInstitutionForm').reset();
-}
-
-/* Ações de aceite/recusa */
 function refuseDonation(donationId) {
   if (confirm('Deseja realmente recusar esta doação?')) {
-    // Mantemos apenas UI refresh
     loadRecebedorDashboard();
   }
 }
 
 function acceptDonationSelf(donationId) {
-  const donation = state.donations.find((d) => d.id === donationId);
+  const donation = state.donations.find(d => d.id === donationId);
   donation.receiverId = state.currentUser.id;
   donation.status = 'accepted';
   donation.needsTransport = false;
@@ -475,11 +631,18 @@ function acceptDonationSelf(donationId) {
 }
 
 function acceptDonationEcolink(donationId) {
-  const donation = state.donations.find((d) => d.id === donationId);
+  const donation = state.donations.find(d => d.id === donationId);
   donation.receiverId = state.currentUser.id;
   donation.status = 'accepted';
   donation.needsTransport = true;
   saveToLocalStorage();
+  
+  pushNotification({
+    title: 'Coleta solicitada',
+    message: 'Aguardando transportador aceitar a entrega.',
+    link: `tracking:${donationId}`
+  });
+  
   alert('Doação aceita! Transportadores foram notificados para realizar o recolhimento.');
   loadRecebedorDashboard();
 }
@@ -491,24 +654,30 @@ function refuseTransport(donationId) {
 }
 
 function acceptTransport(donationId) {
-  const donation = state.donations.find((d) => d.id === donationId);
+  const donation = state.donations.find(d => d.id === donationId);
   donation.transporterId = state.currentUser.id;
   donation.status = 'in_transit';
 
-  const donor = state.users.find((u) => u.id === donation.donorId);
-  const receiver = state.users.find((u) => u.id === donation.receiverId);
+  const donor = state.users.find(u => u.id === donation.donorId);
+  const receiver = state.users.find(u => u.id === donation.receiverId);
 
   saveToLocalStorage();
+  
+  pushNotification({
+    title: 'Transporte aceito',
+    message: 'Você está designado para esta entrega. Consulte o rastreio.',
+    link: `tracking:${donationId}`
+  });
+  
   alert(`Transporte aceito!\n\nDoador: ${donor.name}\nRecebedor: ${receiver.name}\nTransportador: ${state.currentUser.name}`);
   loadTransportadorDashboard();
 }
 
-/* =================== RASTREAMENTO =================== */
 function viewTracking(donationId) {
-  const donation = state.donations.find((d) => d.id === donationId);
-  const donor = state.users.find((u) => u.id === donation.donorId);
-  const receiver = donation.receiverId ? state.users.find((u) => u.id === donation.receiverId) : null;
-  const transporter = donation.transporterId ? state.users.find((u) => u.id === donation.transporterId) : null;
+  const donation = state.donations.find(d => d.id === donationId);
+  const donor = state.users.find(u => u.id === donation.donorId);
+  const receiver = donation.receiverId ? state.users.find(u => u.id === donation.receiverId) : null;
+  const transporter = donation.transporterId ? state.users.find(u => u.id === donation.transporterId) : null;
 
   const allConfirmed =
     donation.donorReleased &&
@@ -517,8 +686,8 @@ function viewTracking(donationId) {
 
   const trackingDiv = document.getElementById('trackingContent');
   trackingDiv.innerHTML = `
-    <div style="margin-bottom:20px;">
-      <h3>Doação #${donation.id}</h3>
+    <div style="margin-bottom: 20px;">
+      <h3 style="color: var(--primary-green);">Doação #${donation.id}</h3>
       <p><strong>Categoria:</strong> ${donation.category}</p>
       <p><strong>Peso:</strong> ${donation.weight} kg</p>
       <p><strong>Status:</strong> <span class="badge badge-${donation.status}">${allConfirmed ? 'Concluído' : donation.status}</span></p>
@@ -539,7 +708,7 @@ function viewTracking(donationId) {
       ${donation.needsTransport ? `
         <div class="timeline-item ${donation.transporterId ? 'completed' : 'pending'}">
           <h4>Transportador Designado</h4>
-          ${transporter ? `<p>Transportador: ${transporter.name}</p>` : '<p>Aguardando transportador...</p>'}
+          ${transporter ? `<p>Transportador: ${transporter.name}</p>${transporter.transportType ? `<p>Veículo: ${transporter.transportType}</p>` : ''}` : '<p>Aguardando transportador...</p>'}
         </div>
       ` : ''}
 
@@ -574,11 +743,12 @@ function viewTracking(donationId) {
       </div>
     </div>
   `;
+
   openModal('trackingModal');
 }
 
 function confirmRelease(donationId) {
-  const donation = state.donations.find((d) => d.id === donationId);
+  const donation = state.donations.find(d => d.id === donationId);
   donation.donorReleased = true;
   saveToLocalStorage();
   alert('Liberação confirmada!');
@@ -587,7 +757,7 @@ function confirmRelease(donationId) {
 }
 
 function confirmPickup(donationId) {
-  const donation = state.donations.find((d) => d.id === donationId);
+  const donation = state.donations.find(d => d.id === donationId);
   donation.transportPickedUp = true;
   saveToLocalStorage();
   alert('Retirada confirmada!');
@@ -596,7 +766,7 @@ function confirmPickup(donationId) {
 }
 
 function confirmDelivery(donationId) {
-  const donation = state.donations.find((d) => d.id === donationId);
+  const donation = state.donations.find(d => d.id === donationId);
   donation.transportDelivered = true;
   saveToLocalStorage();
   alert('Entrega confirmada!');
@@ -605,7 +775,7 @@ function confirmDelivery(donationId) {
 }
 
 function confirmReceipt(donationId) {
-  const donation = state.donations.find((d) => d.id === donationId);
+  const donation = state.donations.find(d => d.id === donationId);
   donation.receiverConfirmed = true;
   donation.status = 'completed';
   saveToLocalStorage();
@@ -614,112 +784,37 @@ function confirmReceipt(donationId) {
   loadRecebedorDashboard();
 }
 
-/* =================== MODAL & LOGOUT =================== */
-function openModal(modalId){document.getElementById(modalId).classList.add('active')}
-function closeModal(modalId){document.getElementById(modalId).classList.remove('active')}
-function logout(){
-  if (confirm('Deseja realmente sair?')) {
-    state.currentUser = null;
-    document.getElementById('loginForm').reset();
-    showScreen('login');
-  }
-}
-window.onclick=function(e){if(e.target.classList.contains('modal')){e.target.classList.remove('active')}};
-
-/* =================== INIT (DEMO) =================== */
-loadFromLocalStorage();
-
-const demoUsers = [
-  {
-    id: 1,
-    name: 'Confecções TextilMax Ltda',
-    document: '12.345.678/0001-90',
-    email: 'contato@textilmax.com.br',
-    phone: '(47) 3333-4444',
-    address: { cep: '89030-000', logradouro: 'Rua das Indústrias', numero: '1500', complemento: 'Galpão 3', bairro: 'Itoupava Seca', cidade: 'Blumenau', estado: 'SC' },
-    fullAddress: 'Rua das Indústrias, 1500, Galpão 3, Itoupava Seca, Blumenau, SC, 89030-000',
-    username: 'doador1',
-    password: 'Senha@123',
-    type: 'doador',
-    tier: 'ouro',
-    createdAt: new Date().toISOString()
-  },
-  {
-    id: 2,
-    name: 'EcoRecicla Têxtil S.A.',
-    document: '98.765.432/0001-10',
-    email: 'comercial@ecorecicla.com.br',
-    phone: '(47) 3555-6666',
-    address: { cep: '89010-100', logradouro: 'Avenida Beira Rio', numero: '800', complemento: '', bairro: 'Centro', cidade: 'Blumenau', estado: 'SC' },
-    fullAddress: 'Avenida Beira Rio, 800, Centro, Blumenau, SC, 89010-100',
-    username: 'recebedor1',
-    password: 'Senha@456',
-    type: 'recebedor',
-    tier: 'diamantium',
-    createdAt: new Date().toISOString()
-  },
-  {
-    id: 3,
-    name: 'TransLog Cargas Especiais',
-    document: '55.444.333/0001-22',
-    email: 'operacoes@translog.com.br',
-    phone: '(47) 3777-8888',
-    address: { cep: '89035-500', logradouro: 'Rodovia BR-101', numero: 'Km 25', complemento: '', bairro: 'Distrito Industrial', cidade: 'Blumenau', estado: 'SC' },
-    fullAddress: 'Rodovia BR-101, Km 25, Distrito Industrial, Blumenau, SC, 89035-500',
-    username: 'transportador1',
-    password: 'Senha@789',
-    type: 'transportador',
-    tier: 'simple',
-    createdAt: new Date().toISOString()
-  }
-];
-
-if (state.users.length === 0) {
-  state.users = [...demoUsers];
-  saveToLocalStorage();
-}
-
-console.log('Sistema Ecolink inicializado!');
-console.log('Usuários demo: doador1/Senha@123 | recebedor1/Senha@456 | transportador1/Senha@789');
-
-/* ====== STATE, STORAGE e helpers existentes permanecem ====== */
-const NotifStore = {
-  _key: 'ecolinkNotifs',
-  _read()  { return JSON.parse(localStorage.getItem(this._key) || '{}'); },
-  _write(v){ localStorage.setItem(this._key, JSON.stringify(v)); },
-
-  allFor(userId) { const db = this._read(); return db[userId] || []; },
-  setFor(userId, list){ const db = this._read(); db[userId] = list; this._write(db); },
-  addFor(userId, notif){
-    const list = this.allFor(userId);
-    list.unshift(notif);
-    this.setFor(userId, list);
-  },
-  markRead(userId, id){
-    const list = this.allFor(userId).map(n => n.id === id ? { ...n, read: true } : n);
-    this.setFor(userId, list);
-  },
-  clear(userId){
-    this.setFor(userId, this.allFor(userId).map(n => ({...n, read:true})));
-  }
-};
-
-// ---------------------- Sino na UI ----------------------
-const bell = { list: [], unread: 0 };
-
-function hydrateBellFromStore(){
-  if (!state.currentUser) return;
-  bell.list = NotifStore.allFor(state.currentUser.id);
-  bell.unread = bell.list.filter(n => !n.read).length;
+function pushNotification({ title, message, link = null }) {
+  bell.list.unshift({
+    id: Date.now(),
+    title,
+    message,
+    createdAt: new Date().toISOString(),
+    read: false,
+    link
+  });
+  bell.unread++;
   renderNotifications();
+  showToast(`${title}: ${message}`);
+
+  if (window.Notification && Notification.permission === 'granted') {
+    try {
+      new Notification(title, { body: message });
+    } catch (e) {}
+  }
+}
+
+function requestNotificationPermissionOnce() {
+  if (window.Notification && Notification.permission === 'default') {
+    Notification.requestPermission().catch(() => {});
+  }
 }
 
 function renderNotifications() {
   const countEl = document.getElementById('notifCount');
-  const listEl  = document.getElementById('notifList');
+  const listEl = document.getElementById('notifList');
   if (!countEl || !listEl) return;
 
-  // badge
   if (bell.unread > 0) {
     countEl.textContent = bell.unread > 99 ? '99+' : String(bell.unread);
     countEl.hidden = false;
@@ -727,7 +822,6 @@ function renderNotifications() {
     countEl.hidden = true;
   }
 
-  // lista
   listEl.innerHTML = '';
   if (bell.list.length === 0) {
     listEl.innerHTML = '<li><span class="notif-time">Sem notificações</span></li>';
@@ -745,244 +839,196 @@ function renderNotifications() {
       <div class="notif-actions">
         ${n.link ? `<button class="btn btn-info" onclick="openFromNotification('${n.link}', ${n.id})">Ver</button>` : ''}
         <button class="btn btn-warning" onclick="markAsRead(${n.id})">Lido</button>
-      </div>`;
+      </div>
+    `;
     listEl.appendChild(li);
   });
 }
 
-function markAsRead(id){
-  if (!state.currentUser) return;
-  NotifStore.markRead(state.currentUser.id, id);
-  hydrateBellFromStore();
+function markAsRead(id) {
+  const item = bell.list.find(n => n.id === id);
+  if (item && !item.read) {
+    item.read = true;
+    bell.unread = Math.max(0, bell.unread - 1);
+    renderNotifications();
+  }
 }
 
-function clearAllNotifications(){
-  if (!state.currentUser) return;
-  NotifStore.clear(state.currentUser.id);
-  hydrateBellFromStore();
+function clearAllNotifications() {
+  bell.list.forEach(n => n.read = true);
+  bell.unread = 0;
+  renderNotifications();
 }
 
-function toggleNotifications(){
+function toggleNotifications() {
   const dd = document.getElementById('notifDropdown');
-  if (dd) dd.hidden = !dd.hidden;
+  if (!dd) return;
+  dd.hidden = !dd.hidden;
 }
 
-function openFromNotification(link, id){
+function openFromNotification(link, id) {
   markAsRead(id);
   toggleNotifications();
-  if (link && link.startsWith('tracking:')) {
+  if (link.startsWith('tracking:')) {
     const donationId = Number(link.split(':')[1]);
     viewTracking(donationId);
   }
 }
 
-function showToast(text){
+function showToast(text) {
   const toast = document.getElementById('toast');
   if (!toast) return;
   toast.textContent = text;
   toast.hidden = false;
-  setTimeout(() => toast.hidden = true, 3500);
+  setTimeout(() => {
+    toast.hidden = true;
+  }, 3500);
 }
 
-function requestNotificationPermissionOnce(){
-  if (window.Notification && Notification.permission === 'default') {
-    Notification.requestPermission().catch(()=>{});
-  }
+function hideAuthTabs() {
+  const tabs = document.getElementById('authTabs');
+  const donaBtn = document.querySelector('.volunteer-btn');
+  if (tabs) tabs.classList.add('hidden');
+  if (donaBtn) donaBtn.classList.add('hidden');
 }
 
-// ---------------------- Emissão para destinatários ----------------------
-function sendNotifTo(userId, {title, message, link=null}){
-  if (!userId) return;
-  const notif = { id: Date.now() + Math.random(), title, message, link, read:false, createdAt: new Date().toISOString() };
-  NotifStore.addFor(userId, notif);
-
-  // feedback imediato se o destinatário é o usuário logado
-  if (state.currentUser && state.currentUser.id === userId) {
-    hydrateBellFromStore();
-    showToast(`${title}: ${message}`);
-    if (window.Notification && Notification.permission === 'granted') {
-      try { new Notification(title, { body: message }); } catch {}
-    }
-  }
+function showAuthTabs() {
+  const tabs = document.getElementById('authTabs');
+  const donaBtn = document.querySelector('.volunteer-btn');
+  if (tabs) tabs.classList.remove('hidden');
+  if (donaBtn) donaBtn.classList.remove('hidden');
 }
 
-function sendNotifToMany(userIds, payload){
-  [...new Set(userIds.filter(Boolean))].forEach(uid => sendNotifTo(uid, payload));
+function openModal(modalId) {
+  document.getElementById(modalId).classList.add('active');
 }
 
-// ---------------------- Regras por evento de status ----------------------
-function notifyStatusChange(donation, prevStatus, nextStatus){
-  const link = `tracking:${donation.id}`;
-  const donorId  = donation.donorId;
-  const recvId   = donation.receiverId;
-  const transId  = donation.transporterId;
+function closeModal(modalId) {
+  document.getElementById(modalId).classList.remove('active');
+}
 
-  // PENDING → ACCEPTED
-  if (prevStatus === 'pending' && nextStatus === 'accepted') {
-    sendNotifTo(donorId, { title:'Doação aceita', message:'Um recebedor aceitou sua doação. Acompanhe o fluxo.', link });
-    sendNotifTo(recvId,  { title:'Você aceitou a doação', message:'Defina o recolhimento (próprio ou pela Ecolink).', link });
-    if (donation.needsTransport) {
-      // transportadores serão notificados quando assumirem; aqui nada a fazer além do recebedor.
-    }
-  }
-
-  // ACCEPTED → IN_TRANSIT (transportador aceitou)
-  if (prevStatus !== 'in_transit' && nextStatus === 'in_transit') {
-    sendNotifToMany([donorId, recvId], { title:'Transporte em andamento', message:'Um transportador aceitou e está a caminho.', link });
-    sendNotifTo(transId, { title:'Transporte aceito', message:'Você está designado para esta entrega.', link });
-  }
-
-  // checkpoints do fluxo
-  if (!donation._prevFlags) donation._prevFlags = {};
-  const f = donation._prevFlags;
-  // Donor released
-  if (donation.donorReleased && !f.donorReleased) {
-    sendNotifToMany([recvId, transId], { title:'Material liberado', message:'Doador liberou a retirada.', link });
-    f.donorReleased = true;
-  }
-  // Pickup
-  if (donation.transportPickedUp && !f.transportPickedUp) {
-    sendNotifToMany([donorId, recvId], { title:'Coleta realizada', message:'Transportador retirou o material.', link });
-    f.transportPickedUp = true;
-  }
-  // Delivery
-  if (donation.transportDelivered && !f.transportDelivered) {
-    sendNotifToMany([donorId, recvId], { title:'Entrega realizada', message:'Material entregue ao recebedor. Aguarda confirmação.', link });
-    f.transportDelivered = true;
-  }
-
-  // → COMPLETED
-  if (nextStatus === 'completed' && prevStatus !== 'completed') {
-    sendNotifToMany([donorId, transId], { title:'Doação concluída', message:'Recebedor confirmou o recebimento. Obrigado!', link });
-    sendNotifTo(recvId, { title:'Recebimento confirmado', message:'Processo finalizado com sucesso.', link });
+function logout() {
+  if (confirm('Deseja realmente sair?')) {
+    state.currentUser = null;
+    document.getElementById('loginForm').reset();
+    showAuthTabs();
+    bell.list = [];
+    bell.unread = 0;
+    renderNotifications();
+    showScreen('login');
   }
 }
 
-// Helper para mudar status SEM esquecer notificações
-function setStatus(donation, newStatus){
-  const oldStatus = donation.status;
-  donation.status = newStatus;
-  notifyStatusChange(donation, oldStatus, newStatus);
-}
-
-// ---------------------- Hooks nos pontos de ação ----------------------
-// 1) cadastro de doação
-const _submitDonation = submitDonation;
-submitDonation = function(e){
-  _submitDonation(e); // cria a doação (status 'pending')
-  const d = state.donations.at(-1);
-  if (!d) return;
-  // feedback imediato para o doador que está logado
-  sendNotifTo(d.donorId, { title:'Doação registrada', message:'Recebedores serão notificados. Acompanhe pelo rastreio.', link:`tracking:${d.id}` });
-};
-
-// 2) recebedor aceita (recolhe por conta)
-const _acceptDonationSelf = acceptDonationSelf;
-acceptDonationSelf = function(donationId){
-  _acceptDonationSelf(donationId);
-  const d = state.donations.find(x => x.id === donationId);
-  if (!d) return;
-  setStatus(d, 'accepted');
-  saveToLocalStorage();
-  hydrateBellFromStore();
-};
-
-// 3) recebedor aceita (pela Ecolink → precisa de transporte)
-const _acceptDonationEcolink = acceptDonationEcolink;
-acceptDonationEcolink = function(donationId){
-  _acceptDonationEcolink(donationId);
-  const d = state.donations.find(x => x.id === donationId);
-  if (!d) return;
-  setStatus(d, 'accepted'); // needsTransport já está true no fluxo original
-  sendNotifTo(d.receiverId, { title:'Coleta solicitada', message:'Aguardando transportador aceitar.', link:`tracking:${donationId}` });
-  saveToLocalStorage();
-  hydrateBellFromStore();
-};
-
-// 4) transportador aceita → IN_TRANSIT
-const _acceptTransport = acceptTransport;
-acceptTransport = function(donationId){
-  _acceptTransport(donationId);
-  const d = state.donations.find(x => x.id === donationId);
-  if (!d) return;
-  setStatus(d, 'in_transit');
-  saveToLocalStorage();
-  hydrateBellFromStore();
-};
-
-// 5) donor confirma liberação
-const _confirmRelease = confirmRelease;
-confirmRelease = function(donationId){
-  _confirmRelease(donationId);
-  const d = state.donations.find(x => x.id === donationId);
-  if (!d) return;
-  notifyStatusChange(d, d.status, d.status); // checkpoint (não muda status)
-  saveToLocalStorage();
-  hydrateBellFromStore();
-};
-
-// 6) transportador confirma retirada
-const _confirmPickup = confirmPickup;
-confirmPickup = function(donationId){
-  _confirmPickup(donationId);
-  const d = state.donations.find(x => x.id === donationId);
-  if (!d) return;
-  notifyStatusChange(d, d.status, d.status); // checkpoint
-  saveToLocalStorage();
-  hydrateBellFromStore();
-};
-
-// 7) transportador confirma entrega
-const _confirmDelivery = confirmDelivery;
-confirmDelivery = function(donationId){
-  _confirmDelivery(donationId);
-  const d = state.donations.find(x => x.id === donationId);
-  if (!d) return;
-  notifyStatusChange(d, d.status, d.status); // checkpoint
-  saveToLocalStorage();
-  hydrateBellFromStore();
-};
-
-// 8) recebedor confirma recebimento → COMPLETED
-const _confirmReceipt = confirmReceipt;
-confirmReceipt = function(donationId){
-  const d = state.donations.find(x => x.id === donationId);
-  _confirmReceipt(donationId); // altera status para 'completed' dentro da função original
-  if (!d) return;
-  setStatus(d, 'completed');
-  saveToLocalStorage();
-  hydrateBellFromStore();
-};
-
-// ---------------------- Integrações com login/dashboard ----------------------
-const _handleLogin = handleLogin;
-handleLogin = function(e){
-  _handleLogin(e);
-  if (state.currentUser) {
-    hideAuthTabs();
-    requestNotificationPermissionOnce();
-    hydrateBellFromStore();
+window.onclick = function(event) {
+  if (event.target.classList.contains('modal')) {
+    event.target.classList.remove('active');
   }
 };
 
-const _logout = logout;
-logout = function(){
-  _logout();
-  showAuthTabs();
-  bell.list = []; bell.unread = 0;
-  renderNotifications();
-};
-
-const _loadDashboard = loadDashboard;
-loadDashboard = function(){
-  _loadDashboard();
-  hydrateBellFromStore();
-};
-
-// fecha dropdown clicando fora
 document.addEventListener('click', (e) => {
   const dd = document.getElementById('notifDropdown');
   const btn = document.getElementById('notifBtn');
   if (!dd || !btn) return;
-  if (!dd.hidden && !dd.contains(e.target) && !btn.contains(e.target)) dd.hidden = true;
+  if (!dd.hidden && !dd.contains(e.target) && !btn.contains(e.target)) {
+    dd.hidden = true;
+  }
 });
+
+loadFromLocalStorage();
+
+const demoUsers = [
+  {
+    id: 1,
+    name: 'Confecções TextilMax Ltda',
+    document: '12.345.678/0001-90',
+    email: 'contato@textilmax.com.br',
+    phone: '(47) 3333-4444',
+    address: {
+      cep: '89030-000',
+      logradouro: 'Rua das Indústrias',
+      numero: '1500',
+      complemento: 'Galpão 3',
+      bairro: 'Itoupava Seca',
+      cidade: 'Blumenau',
+      estado: 'SC'
+    },
+    fullAddress: 'Rua das Indústrias, 1500, Galpão 3, Itoupava Seca, Blumenau, SC, 89030-000',
+    username: 'doador1',
+    password: 'Senha@123',
+    type: 'doador',
+    tier: 'ouro',
+    planPrice: 99.90,
+    createdAt: new Date().toISOString()
+  },
+  {
+    id: 2,
+    name: 'EcoRecicla Têxtil S.A.',
+    document: '98.765.432/0001-10',
+    email: 'comercial@ecorecicla.com.br',
+    phone: '(47) 3555-6666',
+    address: {
+      cep: '89010-100',
+      logradouro: 'Avenida Beira Rio',
+      numero: '800',
+      complemento: '',
+      bairro: 'Centro',
+      cidade: 'Blumenau',
+      estado: 'SC'
+    },
+    fullAddress: 'Avenida Beira Rio, 800, Centro, Blumenau, SC, 89010-100',
+    username: 'recebedor1',
+    password: 'Senha@456',
+    type: 'recebedor',
+    tier: 'diamante',
+    planPrice: 179.90,
+    createdAt: new Date().toISOString()
+  },
+  {
+    id: 3,
+    name: 'TransLog Cargas Especiais',
+    document: '55.444.333/0001-22',
+    email: 'operacoes@translog.com.br',
+    phone: '(47) 3777-8888',
+    address: {
+      cep: '89035-500',
+      logradouro: 'Rodovia BR-101',
+      numero: 'Km 25',
+      complemento: '',
+      bairro: 'Distrito Industrial',
+      cidade: 'Blumenau',
+      estado: 'SC'
+    },
+    fullAddress: 'Rodovia BR-101, Km 25, Distrito Industrial, Blumenau, SC, 89035-500',
+    username: 'transportador1',
+    password: 'Senha@789',
+    type: 'transportador',
+    tier: 'transportador',
+    transportType: 'caminhao',
+    freightRate: 12.90,
+    planPrice: 9.90,
+    vehicle: {
+      renavam: '12345678901',
+      placa: 'ABC1234',
+      modelo: 'Mercedes-Benz Accelo',
+      ano: '2022',
+      cor: 'Branco'
+    },
+    cnh: {
+      numero: '12345678901',
+      categoria: 'C',
+      validade: '2027-12-31'
+    },
+    createdAt: new Date().toISOString()
+  }
+];
+
+if (state.users.length === 0) {
+  state.users = [...demoUsers];
+  saveToLocalStorage();
+}
+
+console.log('Sistema Ecolink inicializado!');
+console.log('Usuários demo disponíveis:');
+console.log('Doador - usuário: doador1 | senha: Senha@123');
+console.log('Recebedor - usuário: recebedor1 | senha: Senha@456');
+console.log('Transportador - usuário: transportador1 | senha: Senha@789');

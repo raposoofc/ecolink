@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
+    <title>Ecolink - Sistema de Gestão de Resíduos</title>
+    <link rel="stylesheet" href="../css/login.css" />
+  </head>
+
+  <body>
+    <a
+      class="back-home"
+      href="../../index.html"
+      title="Voltar para a Home"
+      aria-label="Voltar para a Home"
+    >
+      <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true">
+        <path
+          d="M3 12l9-8 9 8"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        />
+        <path
+          d="M5 10v10h5v-6h4v6h5V10"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        />
+      </svg>
+    </a>
+
+    <div class="header-container">
+      <img src="../imgs/logo.png" alt="Logomarca da Ecolink" class="logo" />
+      <p class="header-subtitle">
+        Sistema de Gestão Inteligente de Resíduos Têxteis
+      </p>
+      <button
+        class="volunteer-btn"
+        onclick="openModal('volunteerModal')"
+        aria-label="Abrir doações voluntárias"
+      >
+        <span class="volunteer-icon-mobile">❤️</span>
+        <span class="volunteer-text">Doações Voluntárias</span>
+      </button>
+    </div>
+
+    <div class="container">
+      <nav
+        class="nav-tabs"
+        id="authTabs"
+        role="tablist"
+        aria-label="Abas principais"
+      >
+        <button
+          class="nav-tab active"
+          id="loginTab"
+          onclick="showScreen('login', event)"
+          aria-controls="login"
+          aria-selected="true"
+        >
+          Login
+        </button>
+        <button
+          class="nav-tab"
+          id="registerTab"
+          onclick="showScreen('register', event)"
+          aria-controls="register"
+          aria-selected="false"
+        >
+          Cadastro
+        </button>
+      </nav>
+
+      <main class="content">
+        <section id="login" class="screen active" aria-labelledby="login-title">
+          <h2 id="login-title" class="section-title">Acesse sua conta</h2>
+          <form id="loginForm" onsubmit="handleLogin(event)" autocomplete="on">
+            <div class="form-group">
+              <label for="loginUser">Usuário</label>
+              <input type="text" id="loginUser" required />
+            </div>
+            <div class="form-group">
+              <label for="loginPassword">Senha</label>
+              <input type="password" id="loginPassword" required />
+            </div>
+            <button type="submit" class="btn btn-primary">Entrar</button>
+          </form>
+        </section>
+
+        <section id="register" class="screen" aria-labelledby="register-title">
+          <h2 id="register-title" class="section-title">Novo Cadastro</h2>
+
+          <h3 class="subsection-title">Selecione o tipo de usuário</h3>
+          <div class="tier-selector">
+            <div
+              class="tier-card"
+              onclick="selectUserType('doador', event)"
+              role="button"
+              tabindex="0"
+            >
+              <div class="tier-icon">📦</div>
+              <h3>Doador</h3>
+              <p>Empresas que descartam resíduos têxteis</p>
+            </div>
+            <div
+              class="tier-card"
+              onclick="selectUserType('recebedor', event)"
+              role="button"
+              tabindex="0"
+            >
+              <div class="tier-icon">♻️</div>
+              <h3>Recebedor</h3>
+              <p>Empresas que recebem e processam resíduos</p>
+            </div>
+            <div
+              class="tier-card"
+              onclick="selectUserType('transportador', event)"
+              role="button"
+              tabindex="0"
+            >
+              <div class="tier-icon">🚚</div>
+              <h3>Transportador</h3>
+              <p>Empresas que realizam o transporte</p>
+            </div>
+          </div>
+
+          <div id="transportTypeSelection" style="display: none">
+            <h3 class="subsection-title">Selecione o tipo de transporte</h3>
+            <div class="tier-selector">
+              <div
+                class="tier-card transport-type"
+                onclick="selectTransportType('moto', event)"
+              >
+                <div class="tier-icon">🏍️</div>
+                <h3>Moto</h3>
+                <p>Entregas rápidas e ágeis</p>
+              </div>
+              <div
+                class="tier-card transport-type"
+                onclick="selectTransportType('carro', event)"
+              >
+                <div class="tier-icon">🚗</div>
+                <h3>Carro</h3>
+                <p>Médio porte</p>
+              </div>
+              <div
+                class="tier-card transport-type"
+                onclick="selectTransportType('caminhao', event)"
+              >
+                <div class="tier-icon">🚛</div>
+                <h3>Caminhão</h3>
+                <p>Grande capacidade</p>
+              </div>
+            </div>
+          </div>
+
+          <div id="tierSelection" style="display: none">
+            <h3 class="subsection-title">Selecione o plano</h3>
+            <div class="tier-selector" id="planCards">
+              </div>
+          </div>
+
+          <form
+            id="registerForm"
+            style="display: none"
+            onsubmit="handleRegister(event)"
+            autocomplete="on"
+          >
+            <div class="form-row">
+              <div class="form-group">
+                <label for="regName">Nome Completo / Razão Social</label>
+                <input type="text" id="regName" required />
+              </div>
+              <div class="form-group">
+                <label for="regDoc">CPF / CNPJ</label>
+                <input type="text" id="regDoc" required />
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="regEmail">Email</label>
+                <input type="email" id="regEmail" required />
+              </div>
+              <div class="form-group">
+                <label for="regPhone">Telefone</label>
+                <input type="tel" id="regPhone" required />
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="regUsername">Nome de Usuário</label>
+                <input type="text" id="regUsername" required />
+              </div>
+              <div class="form-group">
+                <label for="regPassword">Senha</label>
+                <input
+                  type="password"
+                  id="regPassword"
+                  required
+                  oninput="checkPasswordStrength(this.value)"
+                />
+                <div id="passwordStrength" class="password-strength"></div>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="regCep">CEP</label>
+                <input
+                  type="text"
+                  id="regCep"
+                  required
+                  maxlength="9"
+                  placeholder="00000-000"
+                  onblur="buscarCep(this.value)"
+                />
+                <span id="cepLoading" class="loading" style="display: none"
+                  >Buscando CEP...</span
+                >
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="regLogradouro">Logradouro</label>
+                <input type="text" id="regLogradouro" required />
+              </div>
+              <div class="form-group">
+                <label for="regNumero">Número</label>
+                <input type="text" id="regNumero" required />
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="regComplemento">Complemento</label>
+                <input type="text" id="regComplemento" />
+              </div>
+              <div class="form-group">
+                <label for="regBairro">Bairro</label>
+                <input type="text" id="regBairro" required />
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="regCidade">Cidade</label>
+                <input type="text" id="regCidade" required />
+              </div>
+              <div class="form-group">
+                <label for="regEstado">Estado</label>
+                <input
+                  type="text"
+                  id="regEstado"
+                  required
+                  maxlength="2"
+                  placeholder="UF"
+                />
+              </div>
+            </div>
+
+            <fieldset
+              class="vehicle-fields"
+              id="vehicleFields"
+              style="display: none"
+            >
+              <legend>Dados do Veículo</legend>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="regRenavam">RENAVAM</label>
+                  <input
+                    type="text"
+                    id="regRenavam"
+                    maxlength="11"
+                    onblur="validateRenavam(this.value)"
+                    required
+                  />
+                  <div id="renavamStatus" class="renavam-status"></div>
+                </div>
+                <div class="form-group">
+                  <label for="regPlaca">Placa</label>
+                  <input
+                    type="text"
+                    id="regPlaca"
+                    maxlength="7"
+                    placeholder="ABC1234"
+                    required
+                  />
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="regModelo">Modelo</label>
+                  <input type="text" id="regModelo" required />
+                </div>
+                <div class="form-group">
+                  <label for="regAno">Ano</label>
+                  <input type="number" id="regAno" maxlength="4" required />
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="regCor">Cor</label>
+                <input type="text" id="regCor" required />
+              </div>
+            </fieldset>
+
+            <fieldset
+              class="vehicle-fields"
+              id="cnhFields"
+              style="display: none"
+            >
+              <legend>Dados da CNH</legend>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="regCnhNumero">Número de Registro</label>
+                  <input type="text" id="regCnhNumero" required />
+                </div>
+                <div class="form-group">
+                  <label for="regCnhCategoria">Categoria</label>
+                  <input
+                    type="text"
+                    id="regCnhCategoria"
+                    maxlength="2"
+                    placeholder="Ex: AB"
+                    required
+                  />
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="regCnhValidade">Data de Validade</label>
+                <input
+                  type="date"
+                  id="regCnhValidade"
+                  min="2024-01-01"
+                  required
+                />
+              </div>
+            </fieldset>
+
+            <div
+              class="tier-summary"
+              id="planSummary"
+              style="display: none; margin-top: 20px"
+            >
+              <span>
+                Plano Selecionado:
+                <strong id="selectedPlanName"></strong>
+                <span id="selectedPlanPrice"></span>
+              </span>
+            </div>
+
+            <fieldset
+              class="vehicle-fields"
+              id="paymentSection"
+              style="display: none"
+            >
+              <legend>Dados de Pagamento (Assinatura / Taxa Única)</legend>
+              <p style="margin-bottom: 15px; font-size: 0.9em; color: #555">
+                O pagamento será processado agora para ativação do plano.
+              </p>
+              <div class="form-group">
+                <label for="cardNumber">Número do Cartão</label>
+                <input
+                  type="text"
+                  id="cardNumber"
+                  maxlength="19"
+                  placeholder="0000 0000 0000 0000"
+                  oninput="formatCardNumber(this)"
+                />
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="cardName">Nome no Cartão</label>
+                  <input
+                    type="text"
+                    id="cardName"
+                    placeholder="Como está no cartão"
+                  />
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="cardExpiry">Validade</label>
+                  <input
+                    type="text"
+                    id="cardExpiry"
+                    maxlength="5"
+                    placeholder="MM/AA"
+                    oninput="formatExpiry(this)"
+                  />
+                </div>
+                <div class="form-group">
+                  <label for="cardCvv">CVV</label>
+                  <input
+                    type="text"
+                    id="cardCvv"
+                    maxlength="4"
+                    placeholder="000"
+                  />
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="checkbox-label">
+                  <input type="checkbox" id="termsAccept" required />
+                  <span
+                    >Declaro que li e aceito os
+                    <a href="#" target="_blank">Termos de Uso</a> e a
+                    <a href="#" target="_blank">Política de Privacidade</a> da
+                    Ecolink, bem como autorizo a cobrança mensal no cartão
+                    informado.</span
+                  >
+                </label>
+              </div>
+            </fieldset>
+
+            <button type="submit" class="btn btn-primary" id="submitBtn">
+              Cadastrar
+            </button>
+          </form>
+        </section>
+        
+        <section id="dashboard" class="screen" aria-labelledby="dashboard-title">
+          </section>
+      </main>
+    </div>
+
+    <div
+      id="donationModal"
+      class="modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="donationTitle"
+    >
+      <div class="modal-content">
+        <div class="modal-header">
+          <span
+            class="close-modal"
+            onclick="closeModal('donationModal')"
+            aria-label="Fechar modal"
+            >&times;</span
+          >
+          <h2 id="donationTitle">Registrar Nova Doação Têxtil</h2>
+        </div>
+        <form id="donationForm" onsubmit="handleNewDonation(event)">
+          <div class="form-group">
+            <label for="donationCategory">Tipo de Resíduo</label>
+            <select id="donationCategory" required>
+              <option value="">Selecione a Categoria</option>
+              <option value="algodao">Algodão (Fibras Naturais)</option>
+              <option value="poliester">Poliéster (Sintéticos)</option>
+              <option value="jeans">Jeans (Misto)</option>
+              <option value="nao_tecido">Não Tecido (TNT)</option>
+              <option value="outros">Outros</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="donationWeight">Peso Estimado (kg)</label>
+            <input type="number" id="donationWeight" step="0.001" required />
+          </div>
+          <div class="form-group">
+            <label for="donationPhone">Telefone do Responsável</label>
+            <input type="tel" id="donationPhone" required />
+          </div>
+          <div class="form-group">
+            <label for="donationEmail">Email do Responsável</label>
+            <input type="email" id="donationEmail" required />
+          </div>
+          <div class="form-group">
+            <label for="donationNotes">Observações</label>
+            <textarea id="donationNotes" rows="4"></textarea>
+          </div>
+          <button type="submit" class="btn btn-primary">
+            Registrar Doação
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <div
+      id="trackingModal"
+      class="modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="trackingTitle"
+    >
+      <div class="modal-content">
+        <div class="modal-header">
+          <span
+            class="close-modal"
+            onclick="closeModal('trackingModal')"
+            aria-label="Fechar modal"
+            >&times;</span
+          >
+          <h2 id="trackingTitle">Rastreamento da Doação</h2>
+        </div>
+        <div id="trackingContent"></div>
+      </div>
+    </div>
+
+    <div
+      id="volunteerModal"
+      class="modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="volunteerTitle"
+    >
+      <div class="modal-content">
+        <div class="modal-header">
+          <span
+            class="close-modal"
+            onclick="closeModal('volunteerModal')"
+            aria-label="Fechar modal"
+            >&times;</span
+          >
+          <h2 id="volunteerTitle">Doações Voluntárias</h2>
+        </div>
+        <form id="volunteerForm" onsubmit="handleVolunteerDonation(event)">
+          <div class="form-group">
+            <label for="volunteerInstitution">Instituição Beneficiada</label>
+            <select id="volunteerInstitution" required></select>
+          </div>
+          <div class="form-group">
+            <label for="volunteerValue">Valor da Doação (R$)</label>
+            <input
+              type="number"
+              id="volunteerValue"
+              step="0.01"
+              min="5.00"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label for="volunteerCardNumber">Número do Cartão</label>
+            <input
+              type="text"
+              id="volunteerCardNumber"
+              maxlength="19"
+              placeholder="0000 0000 0000 0000"
+              oninput="formatCardNumber(this)"
+              required
+            />
+          </div>
+          <button type="submit" class="btn btn-primary">Doar Agora</button>
+        </form>
+      </div>
+    </div>
+
+    <div class="toast hidden" id="toast">Notificação aqui</div>
+
+    <script src="../js/script.js"></script>
+    <script>
+      // Garante que o estado inicial e o dashboard sejam carregados
+      loadFromLocalStorage();
+      if (state.currentUser) {
+        loadDashboard();
+        hideAuthTabs();
+        requestNotificationPermissionOnce();
+      } else {
+        // Redireciona corretamente para login/register se houver hash na URL
+        const hash = window.location.hash.substring(1);
+        if (hash === 'login' || hash === 'register') {
+          showScreen(hash);
+        } else {
+          showScreen('login');
+        }
+      }
+    </script>
+  </body>
+</html>
