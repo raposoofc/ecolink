@@ -61,16 +61,18 @@ function showAuthTabs() {
 // ==============
 const plansByUserType = {
   doador: [
-    { id: "simple", name: "Simple", icon: "🧩", monthly: 0 },
+    { id: "bronze", name: "Bronze", icon: "🧩", monthly: 49.9 },
     { id: "ouro", name: "Ouro", icon: "⭐", monthly: 99.9, className: "gold" },
     { id: "diamantium", name: "Diamantium", icon: "💎", monthly: 299.9, className: "diamond" },
   ],
   recebedor: [
-    { id: "simple", name: "Simple", icon: "🧩", monthly: 0 },
+    { id: "bronze", name: "Bronze", icon: "🧩", monthly: 39.9 },
     { id: "ouro", name: "Ouro", icon: "⭐", monthly: 89.9, className: "gold" },
     { id: "diamantium", name: "Diamantium", icon: "💎", monthly: 179.9, className: "diamond" },
   ],
-  transportador: [{ id: "simple", name: "Cadastro", icon: "🚚", monthly: 0 }],
+  transportador: [
+    { id: "bronze", name: "Cadastro - repasse de 20% do frete", icon: "🚚", monthly: 0 }
+  ],
 };
 
 const periodicityMeta = {
@@ -200,7 +202,7 @@ function updatePlanPriceDisplay() {
   const planName = state.selectedPlanMeta.name;
 
   if (monthly === 0 || state.selectedUserType === "transportador") {
-    text.textContent = `${planName} – ${perMeta.label} (plano gratuito)`;
+    text.textContent = `${planName} – ${perMeta.label} (plano bronze)`;
     total.textContent = currency(0);
     paymentSection.style.display = "none";
     submitBtn.textContent = "Finalizar Cadastro";
@@ -1189,7 +1191,7 @@ if (state.users.length === 0) {
       username: "transportador1",
       password: "Senha@789",
       type: "transportador",
-      tier: "simple",
+      tier: "bronze",
       transportType: "caminhao",
       createdAt: new Date().toISOString(),
     },
