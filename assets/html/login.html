@@ -8,6 +8,7 @@
     />
     <title>Ecolink - Sistema de Gestão de Resíduos</title>
     <link rel="stylesheet" href="../css/login.css" />
+    <!-- Removido jsPDF: agora o comprovante é gerado como imagem PNG via canvas -->
   </head>
 
   <body>
@@ -18,43 +19,47 @@
       aria-label="Voltar para a Home"
     >
       <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true">
-        <path
-          d="M3 12l9-8 9 8"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-        />
-        <path
-          d="M5 10v10h5v-6h4v6h5V10"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-        />
+        <path d="M3 12l9-8 9 8" fill="none" stroke="currentColor" stroke-width="2" />
+        <path d="M5 10v10h5v-6h4v6h5V10" fill="none" stroke="currentColor" stroke-width="2" />
       </svg>
     </a>
 
-    <div class="header-container">
+    <!-- Header -->
+    <header class="header-container">
       <img src="../imgs/logo.png" alt="Logomarca da Ecolink" class="logo" />
-      <p class="header-subtitle">
-        Sistema de Gestão Inteligente de Resíduos Têxteis
-      </p>
-      <button
-        class="volunteer-btn"
-        onclick="openModal('volunteerModal')"
-        aria-label="Abrir doações voluntárias"
-      >
-        <span class="volunteer-icon-mobile">❤️</span>
-        <span class="volunteer-text">Doações Voluntárias</span>
-      </button>
-    </div>
+      <p class="header-subtitle">Sistema de Gestão Inteligente de Resíduos Têxteis</p>
+
+      <!-- Área dinâmica ao logar: notificações + sair -->
+      <div class="user-actions">
+        <button
+          class="volunteer-btn"
+          onclick="openModal('volunteerModal')"
+          aria-label="Abrir doações voluntárias"
+          id="volunteerButton"
+          style="display:none"
+        >
+          <span class="volunteer-icon-mobile">❤️</span>
+          <span class="volunteer-text">Doações Voluntárias</span>
+        </button>
+
+        <div class="notif-wrap" id="notifWrap" style="display:none">
+          <button class="btn btn-info" id="notifBtn" onclick="toggleNotifications()" aria-haspopup="true" aria-expanded="false">
+            🔔 Notificações <span class="badge-count" id="notifCount" hidden>0</span>
+          </button>
+          <div class="notif-dropdown" id="notifDropdown" hidden>
+            <ul class="notif-list" id="notifList"></ul>
+            <div class="notif-footer">
+              <button class="btn btn-warning" onclick="clearAllNotifications()">Limpar</button>
+            </div>
+          </div>
+        </div>
+
+        <button class="btn btn-danger" id="logoutBtn" onclick="logout()" style="display:none">Sair</button>
+      </div>
+    </header>
 
     <div class="container">
-      <nav
-        class="nav-tabs"
-        id="authTabs"
-        role="tablist"
-        aria-label="Abas principais"
-      >
+      <nav class="nav-tabs" id="authTabs" role="tablist" aria-label="Abas principais">
         <button
           class="nav-tab active"
           id="loginTab"
@@ -76,9 +81,10 @@
       </nav>
 
       <main class="content">
+        <!-- LOGIN -->
         <section id="login" class="screen active" aria-labelledby="login-title">
           <h2 id="login-title" class="section-title">Acesse sua conta</h2>
-          <form id="loginForm" onsubmit="handleLogin(event)" autocomplete="on">
+          <form id="loginForm" onsubmit="handleLogin(event)" autocomplete="off">
             <div class="form-group">
               <label for="loginUser">Usuário</label>
               <input type="text" id="loginUser" required />
@@ -91,66 +97,44 @@
           </form>
         </section>
 
+        <!-- CADASTRO -->
         <section id="register" class="screen" aria-labelledby="register-title">
           <h2 id="register-title" class="section-title">Novo Cadastro</h2>
 
           <h3 class="subsection-title">Selecione o tipo de usuário</h3>
           <div class="tier-selector">
-            <div
-              class="tier-card"
-              onclick="selectUserType('doador', event)"
-              role="button"
-              tabindex="0"
-            >
+            <div class="tier-card" onclick="selectUserType('doador', event)" role="button" tabindex="0">
               <div class="tier-icon">📦</div>
               <h3>Doador</h3>
               <p>Empresas que descartam resíduos têxteis</p>
             </div>
-            <div
-              class="tier-card"
-              onclick="selectUserType('recebedor', event)"
-              role="button"
-              tabindex="0"
-            >
+            <div class="tier-card" onclick="selectUserType('recebedor', event)" role="button" tabindex="0">
               <div class="tier-icon">♻️</div>
               <h3>Recebedor</h3>
               <p>Empresas que recebem e processam resíduos</p>
             </div>
-            <div
-              class="tier-card"
-              onclick="selectUserType('transportador', event)"
-              role="button"
-              tabindex="0"
-            >
+            <div class="tier-card" onclick="selectUserType('transportador', event)" role="button" tabindex="0">
               <div class="tier-icon">🚚</div>
               <h3>Transportador</h3>
               <p>Empresas que realizam o transporte</p>
             </div>
           </div>
 
+          <!-- Subtipo de transporte -->
           <div id="transportTypeSelection" style="display: none">
             <h3 class="subsection-title">Selecione o tipo de transporte</h3>
             <div class="tier-selector">
-              <div
-                class="tier-card transport-type"
-                onclick="selectTransportType('moto', event)"
-              >
+              <div class="tier-card transport-type" onclick="selectTransportType('moto', event)">
                 <div class="tier-icon">🏍️</div>
                 <h3>Moto</h3>
                 <p>Entregas rápidas e ágeis</p>
               </div>
-              <div
-                class="tier-card transport-type"
-                onclick="selectTransportType('carro', event)"
-              >
+              <div class="tier-card transport-type" onclick="selectTransportType('carro', event)">
                 <div class="tier-icon">🚗</div>
                 <h3>Carro</h3>
                 <p>Médio porte</p>
               </div>
-              <div
-                class="tier-card transport-type"
-                onclick="selectTransportType('caminhao', event)"
-              >
+              <div class="tier-card transport-type" onclick="selectTransportType('caminhao', event)">
                 <div class="tier-icon">🚛</div>
                 <h3>Caminhão</h3>
                 <p>Grande capacidade</p>
@@ -158,18 +142,24 @@
             </div>
           </div>
 
+          <!-- PLANOS -->
           <div id="tierSelection" style="display: none">
             <h3 class="subsection-title">Selecione o plano</h3>
-            <div class="tier-selector" id="planCards">
-              </div>
+            <div class="tier-selector" id="planCards"></div>
+
+            <h3 class="subsection-title" style="margin-top: 20px">Periodicidade do Pagamento</h3>
+            <div class="form-group">
+              <select id="planPeriodicity" onchange="updatePlanPriceDisplay()" required>
+                <option value="mensal">Mensal</option>
+                <option value="trimestral">Trimestral (5% de Desconto)</option>
+                <option value="semestral">Semestral (10% de Desconto)</option>
+                <option value="anual">Anual (15% de Desconto)</option>
+              </select>
+            </div>
           </div>
 
-          <form
-            id="registerForm"
-            style="display: none"
-            onsubmit="handleRegister(event)"
-            autocomplete="on"
-          >
+          <!-- FORMULÁRIO DE CADASTRO -->
+          <form id="registerForm" style="display: none" onsubmit="handleRegister(event)" autocomplete="on" novalidate>
             <div class="form-row">
               <div class="form-group">
                 <label for="regName">Nome Completo / Razão Social</label>
@@ -199,12 +189,7 @@
               </div>
               <div class="form-group">
                 <label for="regPassword">Senha</label>
-                <input
-                  type="password"
-                  id="regPassword"
-                  required
-                  oninput="checkPasswordStrength(this.value)"
-                />
+                <input type="password" id="regPassword" required oninput="checkPasswordStrength(this.value)" />
                 <div id="passwordStrength" class="password-strength"></div>
               </div>
             </div>
@@ -218,11 +203,9 @@
                   required
                   maxlength="9"
                   placeholder="00000-000"
-                  onblur="buscarCep(this.value)"
+                  onblur="buscarCep('reg', this.value)"
                 />
-                <span id="cepLoading" class="loading" style="display: none"
-                  >Buscando CEP...</span
-                >
+                <span id="regCepLoading" class="loading" style="display: none">Buscando CEP...</span>
               </div>
             </div>
 
@@ -254,320 +237,530 @@
                 <input type="text" id="regCidade" required />
               </div>
               <div class="form-group">
-                <label for="regEstado">Estado</label>
-                <input
-                  type="text"
-                  id="regEstado"
-                  required
-                  maxlength="2"
-                  placeholder="UF"
-                />
+                <label for="regEstado">Estado (UF)</label>
+                <input type="text" id="regEstado" required maxlength="2" />
               </div>
             </div>
 
-            <fieldset
-              class="vehicle-fields"
-              id="vehicleFields"
-              style="display: none"
-            >
+            <!-- Campos de veículo/CNH (transportador) -->
+            <fieldset id="vehicleFields" style="display: none; margin-top: 20px">
               <legend>Dados do Veículo</legend>
               <div class="form-row">
                 <div class="form-group">
-                  <label for="regRenavam">RENAVAM</label>
-                  <input
-                    type="text"
-                    id="regRenavam"
-                    maxlength="11"
-                    onblur="validateRenavam(this.value)"
-                    required
-                  />
-                  <div id="renavamStatus" class="renavam-status"></div>
+                  <label for="vehicleRenavam">RENAVAM</label>
+                  <input type="text" id="vehicleRenavam" maxlength="11" />
                 </div>
                 <div class="form-group">
-                  <label for="regPlaca">Placa</label>
-                  <input
-                    type="text"
-                    id="regPlaca"
-                    maxlength="7"
-                    placeholder="ABC1234"
-                    required
-                  />
+                  <label for="vehiclePlaca">Placa</label>
+                  <input type="text" id="vehiclePlaca" maxlength="7" />
                 </div>
               </div>
               <div class="form-row">
                 <div class="form-group">
-                  <label for="regModelo">Modelo</label>
-                  <input type="text" id="regModelo" required />
+                  <label for="vehicleModelo">Modelo</label>
+                  <input type="text" id="vehicleModelo" />
                 </div>
                 <div class="form-group">
-                  <label for="regAno">Ano</label>
-                  <input type="number" id="regAno" maxlength="4" required />
+                  <label for="vehicleAno">Ano</label>
+                  <input type="number" id="vehicleAno" maxlength="4" />
                 </div>
               </div>
-              <div class="form-group">
-                <label for="regCor">Cor</label>
-                <input type="text" id="regCor" required />
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="vehicleCor">Cor</label>
+                  <input type="text" id="vehicleCor" />
+                </div>
+                <div class="form-group">
+                  <label for="freightRate">Tarifa de Frete (R$/km)</label>
+                  <input type="number" id="freightRate" step="0.01" min="0.10" />
+                </div>
               </div>
             </fieldset>
 
-            <fieldset
-              class="vehicle-fields"
-              id="cnhFields"
-              style="display: none"
-            >
+            <fieldset id="cnhFields" style="display: none; margin-top: 20px">
               <legend>Dados da CNH</legend>
               <div class="form-row">
                 <div class="form-group">
-                  <label for="regCnhNumero">Número de Registro</label>
-                  <input type="text" id="regCnhNumero" required />
+                  <label for="cnhNumero">Número de Registro</label>
+                  <input type="text" id="cnhNumero" />
                 </div>
                 <div class="form-group">
-                  <label for="regCnhCategoria">Categoria</label>
-                  <input
-                    type="text"
-                    id="regCnhCategoria"
-                    maxlength="2"
-                    placeholder="Ex: AB"
-                    required
-                  />
+                  <label for="cnhCategoria">Categoria</label>
+                  <select id="cnhCategoria">
+                    <option value="">Selecione</option>
+                    <option value="A">A</option>
+                    <option value="B">B</option>
+                    <option value="C">C</option>
+                    <option value="D">D</option>
+                    <option value="E">E</option>
+                  </select>
                 </div>
-              </div>
-              <div class="form-group">
-                <label for="regCnhValidade">Data de Validade</label>
-                <input
-                  type="date"
-                  id="regCnhValidade"
-                  min="2024-01-01"
-                  required
-                />
+                <div class="form-group">
+                  <label for="cnhValidade">Data de Validade</label>
+                  <input type="date" id="cnhValidade" />
+                </div>
               </div>
             </fieldset>
 
-            <div
-              class="tier-summary"
-              id="planSummary"
-              style="display: none; margin-top: 20px"
-            >
-              <span>
-                Plano Selecionado:
-                <strong id="selectedPlanName"></strong>
-                <span id="selectedPlanPrice"></span>
-              </span>
-            </div>
+            <!-- PAGAMENTO DO PLANO -->
+            <fieldset id="paymentSection" style="display: none; margin-top: 20px">
+              <legend>Pagamento do Plano</legend>
 
-            <fieldset
-              class="vehicle-fields"
-              id="paymentSection"
-              style="display: none"
-            >
-              <legend>Dados de Pagamento (Assinatura / Taxa Única)</legend>
-              <p style="margin-bottom: 15px; font-size: 0.9em; color: #555">
-                O pagamento será processado agora para ativação do plano.
-              </p>
-              <div class="form-group">
-                <label for="cardNumber">Número do Cartão</label>
-                <input
-                  type="text"
-                  id="cardNumber"
-                  maxlength="19"
-                  placeholder="0000 0000 0000 0000"
-                  oninput="formatCardNumber(this)"
-                />
+              <div id="planSummary" class="tier-summary" style="display: none">
+                <span id="planSummaryText" style="flex: 1"></span>
+                <span id="planSummaryTotal" style="font-weight: 800; font-size: 1.1em; color: var(--primary-green)"></span>
               </div>
-              <div class="form-row">
-                <div class="form-group">
-                  <label for="cardName">Nome no Cartão</label>
-                  <input
-                    type="text"
-                    id="cardName"
-                    placeholder="Como está no cartão"
-                  />
-                </div>
-              </div>
-              <div class="form-row">
-                <div class="form-group">
-                  <label for="cardExpiry">Validade</label>
-                  <input
-                    type="text"
-                    id="cardExpiry"
-                    maxlength="5"
-                    placeholder="MM/AA"
-                    oninput="formatExpiry(this)"
-                  />
-                </div>
-                <div class="form-group">
-                  <label for="cardCvv">CVV</label>
-                  <input
-                    type="text"
-                    id="cardCvv"
-                    maxlength="4"
-                    placeholder="000"
-                  />
-                </div>
-              </div>
-              <div class="form-group">
-                <label class="checkbox-label">
-                  <input type="checkbox" id="termsAccept" required />
-                  <span
-                    >Declaro que li e aceito os
-                    <a href="#" target="_blank">Termos de Uso</a> e a
-                    <a href="#" target="_blank">Política de Privacidade</a> da
-                    Ecolink, bem como autorizo a cobrança mensal no cartão
-                    informado.</span
-                  >
+
+              <h4 class="subsection-title" style="margin-top: 0">Selecione o Método de Pagamento</h4>
+              <div class="payment-method-selector">
+                <label class="radio-label">
+                  <input type="radio" name="paymentMethod" value="pix" onchange="showPaymentFields('plan', 'pix')" />
+                  <span class="icon-label"><span class="icon">📱</span> PIX</span>
+                </label>
+                <label class="radio-label">
+                  <input type="radio" name="paymentMethod" value="transfer" onchange="showPaymentFields('plan', 'transfer')" />
+                  <span class="icon-label"><span class="icon">🏦</span> Transferência Bancária</span>
+                </label>
+                <label class="radio-label">
+                  <input type="radio" name="paymentMethod" value="debit" onchange="showPaymentFields('plan', 'debit')" />
+                  <span class="icon-label"><span class="icon">💳</span> Cartão de Débito</span>
+                </label>
+                <label class="radio-label">
+                  <input type="radio" name="paymentMethod" value="credit" onchange="showPaymentFields('plan', 'credit')" />
+                  <span class="icon-label"><span class="icon">💳</span> Cartão de Crédito</span>
                 </label>
               </div>
+
+              <div id="planPixDetails" class="payment-details" style="display: none">
+                <p><strong>Chave PIX (CNPJ):</strong> 00.000.000/0001-00</p>
+                <p style="font-size: 0.9em; color: var(--danger)">O cadastro só será finalizado após a confirmação do pagamento.</p>
+              </div>
+
+              <div id="planTransferDetails" class="payment-details" style="display: none">
+                <p><strong>Banco:</strong> 001 - Banco do Brasil</p>
+                <p><strong>Agência:</strong> 1234-5</p>
+                <p><strong>Conta:</strong> 67890-0 (Pessoa Jurídica)</p>
+                <p style="font-size: 0.9em; color: var(--danger)">O cadastro só será finalizado após a confirmação do pagamento.</p>
+              </div>
+
+              <div id="planCardDetails" class="payment-details card-details" style="display: none">
+                <div class="form-group">
+                  <label for="planCardNumber">Número do Cartão</label>
+                  <input type="text" id="planCardNumber" maxlength="19" placeholder="0000 0000 0000 0000" oninput="formatCardNumber(this)" />
+                </div>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="planCardName">Nome no Cartão</label>
+                    <input type="text" id="planCardName" placeholder="Como está no cartão" />
+                  </div>
+                </div>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="planCardExpiry">Validade</label>
+                    <input type="text" id="planCardExpiry" maxlength="5" placeholder="MM/AA" oninput="formatExpiry(this)" />
+                  </div>
+                  <div class="form-group">
+                    <label for="planCardCvv">CVV</label>
+                    <input type="text" id="planCardCvv" maxlength="4" placeholder="123" />
+                  </div>
+                </div>
+              </div>
             </fieldset>
 
-            <button type="submit" class="btn btn-primary" id="submitBtn">
-              Cadastrar
+            <button class="btn btn-primary" type="submit" id="regSubmitBtn" style="margin-top: 1.5rem">
+              Finalizar Cadastro e Pagar
             </button>
           </form>
         </section>
-        
+
+        <!-- DASHBOARD -->
         <section id="dashboard" class="screen" aria-labelledby="dashboard-title">
-          </section>
+          <h2 id="dashboard-title" class="section-title">Dashboard</h2>
+          <p><strong id="userName"></strong></p>
+          <p id="userType"></p>
+
+          <!-- Doador -->
+          <div id="doadorDash" style="display: none">
+            <h3 class="section-title">Painel do Doador</h3>
+            <div class="dashboard">
+              <div class="stat-card green">
+                <div class="stat-value" id="co2Saved">0</div>
+                <div class="stat-label">kg de CO² evitados</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-value" id="waterSaved">0</div>
+                <div class="stat-label">Litros de água poupados</div>
+              </div>
+              <div class="stat-card green">
+                <div class="stat-value" id="landfillSaved">0</div>
+                <div class="stat-label">kg de resíduos desviados</div>
+              </div>
+            </div>
+
+            <button class="btn btn-primary" onclick="openModal('newDonationModal')">Registrar Nova Doação</button>
+
+            <h3 class="table-title">Minhas Doações Recentes</h3>
+            <div class="table-container">
+              <table id="donorDonationsTable">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Tipo</th>
+                    <th>Peso (kg)</th>
+                    <th>Data</th>
+                    <th>Status</th>
+                    <th>Ações</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+
+            <h3 class="table-title">Notificações</h3>
+            <div id="donorNotifications" class="notifications"></div>
+          </div>
+
+          <!-- Recebedor -->
+          <div id="recebedorDash" style="display: none">
+            <h3 class="table-title">Doações Disponíveis</h3>
+            <div id="receiverNotifications" class="notifications"></div>
+            <div class="table-container">
+              <table id="availableDonationsTable">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Categoria</th>
+                    <th>Peso (kg)</th>
+                    <th>Data</th>
+                    <th>Status</th>
+                    <th>Ações</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Transportador -->
+          <div id="transportadorDash" style="display: none">
+            <h3 class="table-title">Coletas Disponíveis</h3>
+            <div id="transportNotifications" class="notifications"></div>
+            <div class="table-container">
+              <table id="availablePickupsTable">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Doador (Coleta)</th>
+                    <th>Recebedor (Entrega)</th>
+                    <th>Peso (kg)</th>
+                    <th>Status</th>
+                    <th>Ações</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
       </main>
     </div>
 
-    <div
-      id="donationModal"
-      class="modal"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="donationTitle"
-    >
+    <!-- MODAL DOAÇÕES VOLUNTÁRIAS -->
+    <div id="volunteerModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="volunteer-modal-title">
       <div class="modal-content">
-        <div class="modal-header">
-          <span
-            class="close-modal"
-            onclick="closeModal('donationModal')"
-            aria-label="Fechar modal"
-            >&times;</span
-          >
-          <h2 id="donationTitle">Registrar Nova Doação Têxtil</h2>
-        </div>
-        <form id="donationForm" onsubmit="handleNewDonation(event)">
-          <div class="form-group">
-            <label for="donationCategory">Tipo de Resíduo</label>
-            <select id="donationCategory" required>
-              <option value="">Selecione a Categoria</option>
-              <option value="algodao">Algodão (Fibras Naturais)</option>
-              <option value="poliester">Poliéster (Sintéticos)</option>
-              <option value="jeans">Jeans (Misto)</option>
-              <option value="nao_tecido">Não Tecido (TNT)</option>
-              <option value="outros">Outros</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label for="donationWeight">Peso Estimado (kg)</label>
-            <input type="number" id="donationWeight" step="0.001" required />
-          </div>
-          <div class="form-group">
-            <label for="donationPhone">Telefone do Responsável</label>
-            <input type="tel" id="donationPhone" required />
-          </div>
-          <div class="form-group">
-            <label for="donationEmail">Email do Responsável</label>
-            <input type="email" id="donationEmail" required />
-          </div>
-          <div class="form-group">
-            <label for="donationNotes">Observações</label>
-            <textarea id="donationNotes" rows="4"></textarea>
-          </div>
-          <button type="submit" class="btn btn-primary">
-            Registrar Doação
+        <span class="close-btn" onclick="closeModal('volunteerModal')" aria-label="Fechar Doações Voluntárias">&times;</span>
+        <h2 id="volunteer-modal-title" class="section-title" style="margin-top: 0">Doações Voluntárias & Carências</h2>
+
+        <form id="volunteerForm" onsubmit="handleVolunteerDonation(event)">
+          <!-- PERFIL -->
+          <fieldset>
+            <legend>Tipo de Participante</legend>
+            <div class="tier-selector card-choices" id="volunteerProfiles">
+              <label class="tier-card as-label">
+                <input type="radio" name="volunteerUserType" value="doador" onchange="updateVolunteerFormVisibility()" required />
+                <div class="tier-icon">🎁</div>
+                <h3>Doador Voluntário</h3>
+                <p>Quero doar valores/itens</p>
+              </label>
+
+              <label class="tier-card as-label">
+                <input type="radio" name="volunteerUserType" value="instituicao" onchange="updateVolunteerFormVisibility()" />
+                <div class="tier-icon">🤝</div>
+                <h3>Instituição (Carência)</h3>
+                <p>Preciso receber ajuda</p>
+              </label>
+            </div>
+          </fieldset>
+
+          <!-- TIPO DE DOAÇÃO -->
+          <fieldset id="donationTypeSelection" style="margin-top: 20px; display: none">
+            <legend id="donationTypeLegend">Selecione o Tipo de Doação</legend>
+            <div class="tier-selector card-choices">
+              <label class="tier-card as-label">
+                <input type="radio" name="volunteerDonationType" value="valor" onchange="updateVolunteerFormVisibility()" />
+                <div class="tier-icon">💰</div>
+                <h3>Valor em Dinheiro</h3>
+                <p>PIX, transferência ou cartão</p>
+              </label>
+              <label class="tier-card as-label">
+                <input type="radio" name="volunteerDonationType" value="roupas" onchange="updateVolunteerFormVisibility()" />
+                <div class="tier-icon">👚</div>
+                <h3>Roupas/Têxteis</h3>
+                <p>Agende coleta/entrega</p>
+              </label>
+              <label class="tier-card as-label">
+                <input type="radio" name="volunteerDonationType" value="alimentos" onchange="updateVolunteerFormVisibility()" />
+                <div class="tier-icon">🍎</div>
+                <h3>Alimentos/Cestas</h3>
+                <p>Itens não perecíveis</p>
+              </label>
+            </div>
+          </fieldset>
+
+          <!-- CONTATO -->
+          <fieldset id="volunteerContactFields" style="margin-top: 20px; display: none">
+            <legend>Informações de Contato</legend>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="volunteerName">Nome / Instituição</label>
+                <input type="text" id="volunteerName" />
+              </div>
+              <div class="form-group">
+                <label for="volunteerCpfCnpj">CPF / CNPJ</label>
+                <input type="text" id="volunteerCpfCnpj" />
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="volunteerEmail">Email</label>
+                <input type="email" id="volunteerEmail" />
+              </div>
+              <div class="form-group">
+                <label for="volunteerPhone">Telefone</label>
+                <input type="tel" id="volunteerPhone" />
+              </div>
+            </div>
+          </fieldset>
+
+          <!-- VALOR EM DINHEIRO + MÉTODO DE PAGAMENTO -->
+          <fieldset id="volunteerValueFields" style="margin-top: 20px; display: none">
+            <legend id="donationDetailsLegend">Detalhes da Doação</legend>
+
+            <div id="donationDetails" class="payment-details card-details" style="display: none">
+              <div class="form-group">
+                <label for="volunteerValue">Valor da Doação (R$)</label>
+                <input type="number" id="volunteerValue" step="0.01" min="5.00" />
+              </div>
+
+              <h4 class="subsection-title" style="margin-top: 15px">Método de Pagamento</h4>
+              <div class="payment-method-selector">
+                <label class="radio-label">
+                  <input type="radio" name="volunteerPaymentMethod" value="pix" onchange="showPaymentFields('volunteer', 'pix')" />
+                  <span class="icon-label"><span class="icon">📱</span> PIX</span>
+                </label>
+                <label class="radio-label">
+                  <input type="radio" name="volunteerPaymentMethod" value="transfer" onchange="showPaymentFields('volunteer', 'transfer')" />
+                  <span class="icon-label"><span class="icon">🏦</span> Transferência</span>
+                </label>
+                <label class="radio-label">
+                  <input type="radio" name="volunteerPaymentMethod" value="credit" onchange="showPaymentFields('volunteer', 'credit')" />
+                  <span class="icon-label"><span class="icon">💳</span> Cartão de Crédito</span>
+                </label>
+              </div>
+
+              <div id="volunteerPixDetails" class="payment-details" style="display: none; margin-top: 10px">
+                <p><strong>Chave PIX Ecolink (CNPJ):</strong> 00.000.000/0001-00</p>
+                <p style="font-size: 0.9em; color: var(--danger)">Sua doação será processada após a transferência para a chave acima.</p>
+              </div>
+
+              <div id="volunteerTransferDetails" class="payment-details" style="display: none; margin-top: 10px">
+                <p>
+                  <strong>Banco:</strong> 001 - Banco do Brasil |
+                  <strong>Agência:</strong> 1234-5 |
+                  <strong>Conta:</strong> 67890-0
+                </p>
+                <p style="font-size: 0.9em; color: var(--danger)">Envie o comprovante para o nosso e-mail.</p>
+              </div>
+
+              <div id="volunteerCardDetails" class="payment-details card-details" style="display: none">
+                <div class="form-group">
+                  <label for="volunteerCardNumber">Número do Cartão</label>
+                  <input type="text" id="volunteerCardNumber" maxlength="19" placeholder="0000 0000 0000 0000" oninput="formatCardNumber(this)" />
+                </div>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="volunteerCardName">Nome no Cartão</label>
+                    <input type="text" id="volunteerCardName" placeholder="Como está no cartão" />
+                  </div>
+                </div>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="volunteerCardExpiry">Validade</label>
+                    <input type="text" id="volunteerCardExpiry" maxlength="5" placeholder="MM/AA" oninput="formatExpiry(this)" />
+                  </div>
+                  <div class="form-group">
+                    <label for="volunteerCardCvv">CVV</label>
+                    <input type="text" id="volunteerCardCvv" maxlength="4" placeholder="123" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div id="volunteerReceivingFields" style="display: none">
+              <div class="form-group">
+                <label for="volunteerValueNeeded">Valor de Carência (R$)</label>
+                <input type="number" id="volunteerValueNeeded" step="0.01" min="5.00" />
+              </div>
+              <h4 style="margin-top: 15px">Dados Bancários para Recebimento</h4>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="volunteerBank">Banco</label>
+                  <input type="text" id="volunteerBank" />
+                </div>
+                <div class="form-group">
+                  <label for="volunteerAgency">Agência</label>
+                  <input type="text" id="volunteerAgency" />
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="volunteerAccount">Conta com Dígito</label>
+                  <input type="text" id="volunteerAccount" />
+                </div>
+                <div class="form-group">
+                  <label for="volunteerAccountType">Tipo de Conta</label>
+                  <select id="volunteerAccountType">
+                    <option value="">Selecione...</option>
+                    <option value="corrente">Conta Corrente</option>
+                    <option value="poupanca">Conta Poupança</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group" id="volunteerNotesGroup" style="display: none">
+              <label for="volunteerNotes" id="volunteerNotesLabel">Notas ou Pedidos Específicos:</label>
+              <textarea id="volunteerNotes" rows="3"></textarea>
+            </div>
+
+            <div id="volunteerItemFields" style="display: none">
+              <div class="form-group">
+                <label for="volunteerItemDescription" id="itemDescriptionLabel">Descrição dos Itens:</label>
+                <textarea id="volunteerItemDescription" rows="4"></textarea>
+              </div>
+              <p id="volunteerItemHelpText" style="font-size: 0.9em; color: var(--info)">
+                A Ecolink entrará em contato para agendar a coleta no endereço informado.
+              </p>
+            </div>
+          </fieldset>
+
+          <fieldset id="volunteerAddressFields" style="margin-top: 20px; display: none">
+            <legend>Endereço</legend>
+            <div class="form-group">
+              <label for="volunteerCep">CEP</label>
+              <input
+                type="text"
+                id="volunteerCep"
+                maxlength="9"
+                placeholder="00000-000"
+                onblur="buscarCep('volunteer', this.value)"
+              />
+              <span id="volunteerCepLoading" class="loading" style="display: none">Buscando CEP...</span>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="volunteerLogradouro">Logradouro</label>
+                <input type="text" id="volunteerLogradouro" />
+              </div>
+              <div class="form-group">
+                <label for="volunteerNumero">Número</label>
+                <input type="text" id="volunteerNumero" />
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="volunteerBairro">Bairro</label>
+                <input type="text" id="volunteerBairro" />
+              </div>
+              <div class="form-group">
+                <label for="volunteerCidade">Cidade</label>
+                <input type="text" id="volunteerCidade" />
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="volunteerComplemento">Complemento</label>
+              <input type="text" id="volunteerComplemento" />
+            </div>
+          </fieldset>
+
+          <button type="submit" class="btn btn-primary" id="volunteerSubmitBtn" style="margin-top: 20px; display: none">
+            Finalizar
           </button>
         </form>
       </div>
     </div>
 
-    <div
-      id="trackingModal"
-      class="modal"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="trackingTitle"
-    >
+    <!-- MODAL NOVA DOAÇÃO -->
+    <div id="newDonationModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="new-donation-title">
       <div class="modal-content">
-        <div class="modal-header">
-          <span
-            class="close-modal"
-            onclick="closeModal('trackingModal')"
-            aria-label="Fechar modal"
-            >&times;</span
-          >
-          <h2 id="trackingTitle">Rastreamento da Doação</h2>
-        </div>
-        <div id="trackingContent"></div>
+        <span class="close-btn" onclick="closeModal('newDonationModal')">&times;</span>
+        <h2 id="new-donation-title" class="section-title">Registrar Nova Doação</h2>
+
+        <form id="newDonationForm" onsubmit="handleNewDonation(event)">
+          <div class="form-group">
+            <label for="donationCategory">Tipo de Resíduo</label>
+            <input type="text" id="donationCategory" required placeholder="Ex: Retalhos de algodão, Jeans..." />
+          </div>
+          <div class="form-group">
+            <label for="donationWeight">Peso Aproximado (kg)</label>
+            <input type="number" id="donationWeight" step="0.1" min="1" required />
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="donationPhone">Telefone para Coleta</label>
+              <input type="tel" id="donationPhone" required />
+            </div>
+            <div class="form-group">
+              <label for="donationEmail">Email de Contato</label>
+              <input type="email" id="donationEmail" required />
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="donationNotes">Observações (ex: melhor horário, local exato)</label>
+            <textarea id="donationNotes" rows="3"></textarea>
+          </div>
+
+          <button type="submit" class="btn btn-primary">Registrar</button>
+        </form>
       </div>
     </div>
 
-    <div
-      id="volunteerModal"
-      class="modal"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="volunteerTitle"
-    >
+    <!-- MODAL RASTREAMENTO -->
+    <div id="trackingModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="tracking-title">
       <div class="modal-content">
-        <div class="modal-header">
-          <span
-            class="close-modal"
-            onclick="closeModal('volunteerModal')"
-            aria-label="Fechar modal"
-            >&times;</span
-          >
-          <h2 id="volunteerTitle">Doações Voluntárias</h2>
-        </div>
-        <form id="volunteerForm" onsubmit="handleVolunteerDonation(event)">
-          <div class="form-group">
-            <label for="volunteerInstitution">Instituição Beneficiada</label>
-            <select id="volunteerInstitution" required></select>
-          </div>
-          <div class="form-group">
-            <label for="volunteerValue">Valor da Doação (R$)</label>
-            <input
-              type="number"
-              id="volunteerValue"
-              step="0.01"
-              min="5.00"
-              required
-            />
-          </div>
-          <div class="form-group">
-            <label for="volunteerCardNumber">Número do Cartão</label>
-            <input
-              type="text"
-              id="volunteerCardNumber"
-              maxlength="19"
-              placeholder="0000 0000 0000 0000"
-              oninput="formatCardNumber(this)"
-              required
-            />
-          </div>
-          <button type="submit" class="btn btn-primary">Doar Agora</button>
-        </form>
+        <span class="close-btn" onclick="closeModal('trackingModal')">&times;</span>
+        <h2 id="tracking-title" class="section-title">Rastreamento da Doação</h2>
+        <div id="trackingBody"></div>
       </div>
     </div>
 
     <div class="toast hidden" id="toast">Notificação aqui</div>
 
     <script src="../js/script.js"></script>
+
     <script>
-      // Garante que o estado inicial e o dashboard sejam carregados
+      // Estado inicial de telas
       loadFromLocalStorage();
       if (state.currentUser) {
         loadDashboard();
-        hideAuthTabs();
         requestNotificationPermissionOnce();
       } else {
-        // Redireciona corretamente para login/register se houver hash na URL
         const hash = window.location.hash.substring(1);
-        if (hash === 'login' || hash === 'register') {
+        if (hash === "login" || hash === "register") {
           showScreen(hash);
         } else {
-          showScreen('login');
+          showScreen("login");
         }
       }
     </script>

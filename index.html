@@ -15,30 +15,45 @@
   </head>
   <body>
     <div class="wrapper">
-      <header class="container nav">
+      <!-- HEADER FIXO COM TRANSPARÊNCIA E HAMBURGER -->
+      <header class="container nav" data-sticky>
         <div class="brand">
-          <img
+          <a href="#"><img
             src="./assets/imgs/logo.png"
             alt="Logomarca da Ecolink"
             class="logo"
-          />
+          /></a>
           <div>Ecolink</div>
         </div>
-        <nav>
-          <a href="#como-funciona">Como funciona</a>
-          <a href="#beneficios">Benefícios</a>
-          <a href="#planos">Planos</a>
+
+        <button
+          class="nav-toggle"
+          aria-label="Abrir menu"
+          aria-controls="primary-nav"
+          aria-expanded="false"
+        >
+          <span class="icon-burger" aria-hidden="true"></span>
+          <span class="icon-close" aria-hidden="true"></span>
+        </button>
+
+        <nav id="primary-nav" class="primary-nav">
+          <a href="#como-funciona" data-spy="como-funciona">Como funciona?</a>
+          <a href="#indicadores" data-spy="indicadores">Indicadores</a>
+          <a href="#beneficios" data-spy="beneficios">Benefícios</a>
+          <a href="#planos" data-spy="planos">Planos</a>
           <a href="./assets/html/login.html#login">Entrar</a>
         </nav>
       </header>
 
       <main class="container">
-        <section class="hero">
+        <section class="hero" id="inicio" data-section="inicio">
           <h1>Transforme sobras têxteis em <em>impacto positivo</em>.</h1>
           <p>
-            Conecte sua empresa, ateliê ou ONG a uma rede inteligente que evita
-            descarte indevido, reduz emissões e abastece quem precisa de
-            matéria-prima.
+            Dê um destino inteligente aos seus excedentes: conecte-se em minutos
+            com instituições e parceiros que <strong>de fato</strong> precisam,
+            reduza custos de descarte, <strong>corte emissões</strong> e
+            <strong>comprove seu impacto</strong> com relatórios ESG
+            auditáveis. Juntos, viramos o jogo da economia circular.
           </p>
           <div class="cta-row">
             <a class="btn btn-primary" href="./assets/html/login.html#register"
@@ -47,67 +62,82 @@
             <a class="btn btn-ghost" href="./assets/html/login.html#login"
               >Já tenho conta</a
             >
+
+            <!-- Botão de Doações transferido da tela de login -->
+            <button class="btn btn-accent" id="btn-doacoes">
+              Doações Voluntárias
+            </button>
           </div>
         </section>
 
-        <section id="como-funciona" class="section">
+        <!-- COMO FUNCIONA -->
+        <section id="como-funciona" class="section" data-section="como-funciona">
           <h2>Como funciona</h2>
           <div class="cards-grid como-grid">
             <article class="card">
-              <div
-                class="card-figure image-slot"
-                data-slot="como-1"
-                aria-label="Ilustração do cadastro na plataforma"
-              ></div>
-              <h3>1) Cadastre-se</h3>
+              <div class="card-figure">
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M12 12a5 5 0 100-10 5 5 0 000 10z" stroke="currentColor" stroke-width="2"/>
+                  <path d="M3 22a9 9 0 1118 0" stroke="currentColor" stroke-width="2"/>
+                </svg>
+              </div>
+              <h3>1° Cadastre-se</h3>
               <p>
                 Crie sua conta e informe seu perfil (doadora, receptora ou
-                transportadora).
+                transportadora). Em poucos passos você já pode listar materiais
+                ou solicitar doações.
                 <a class="learn-more" href="#" target="_blank" rel="noopener"
                   >Saiba mais</a
                 >
               </p>
             </article>
+
             <article class="card">
-              <div
-                class="card-figure image-slot"
-                data-slot="como-2"
-                aria-label="Ilustração de correspondência inteligente"
-              ></div>
-              <h3>2) Match inteligente</h3>
+              <div class="card-figure">
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M4 7h16M4 12h16M4 17h10" stroke="currentColor" stroke-width="2" />
+                  <circle cx="19" cy="17" r="2" stroke="currentColor" stroke-width="2"/>
+                </svg>
+              </div>
+              <h3>2° Match inteligente</h3>
               <p>
-                Nós conectamos doações à demanda certa com base em tipo de
-                material, peso e localização.
+                Algoritmos conectam doações à demanda certa considerando tipo,
+                volume, localização e prioridade. Transparência e agilidade para
+                quem doa e para quem recebe.
                 <a class="learn-more" href="#" target="_blank" rel="noopener"
                   >Saiba mais</a
                 >
               </p>
             </article>
+
             <article class="card">
-              <div
-                class="card-figure image-slot"
-                data-slot="como-3"
-                aria-label="Ilustração de logística sustentável"
-              ></div>
-              <h3>3) Logística</h3>
+              <div class="card-figure">
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M3 7h11l4 4v6a2 2 0 01-2 2H5a2 2 0 01-2-2V7z" stroke="currentColor" stroke-width="2"/>
+                  <circle cx="7.5" cy="17.5" r="1.5" fill="currentColor"/>
+                  <circle cx="16.5" cy="17.5" r="1.5" fill="currentColor"/>
+                </svg>
+              </div>
+              <h3>3° Logística</h3>
               <p>
                 Coleta própria ou via rede de transportadores parceiros —
-                rastreável do início ao fim.
+                rastreável do início ao fim com atualizações em tempo real.
                 <a class="learn-more" href="#" target="_blank" rel="noopener"
                   >Saiba mais</a
                 >
               </p>
             </article>
+
             <article class="card">
-              <div
-                class="card-figure image-slot"
-                data-slot="como-4"
-                aria-label="Ilustração de comprovação de impacto"
-              ></div>
-              <h3>4) Comprovação</h3>
+              <div class="card-figure">
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M9 12l2 2 4-4M5 4h14v16H5z" stroke="currentColor" stroke-width="2"/>
+                </svg>
+              </div>
+              <h3>4° Comprovação</h3>
               <p>
-                Relatórios e comprovantes para auditorias ESG e comunicação de
-                impacto.
+                Relatórios, comprovantes e indicadores para auditorias ESG,
+                captação e comunicação de impacto da sua organização.
                 <a class="learn-more" href="#" target="_blank" rel="noopener"
                   >Saiba mais</a
                 >
@@ -116,8 +146,9 @@
           </div>
         </section>
 
-        <section id="como-funciona" class="section">
-          <h2>Como funciona</h2>
+        <!-- KPIs -->
+        <section id="indicadores" class="section" data-section="indicadores">
+          <h2>Indicadores de Impacto</h2>
           <div class="kpis" aria-label="Indicadores do impacto">
             <div class="kpi">
               <div class="kpi-image-placeholder">
@@ -188,7 +219,8 @@
           </div>
         </section>
 
-        <section id="beneficios" class="section benefits-wrap">
+        <!-- BENEFÍCIOS -->
+        <section id="beneficios" class="section benefits-wrap" data-section="beneficios">
           <h2>Benefícios para você e para o planeta</h2>
           <div class="carousel" data-carousel>
             <div class="carousel-track">
@@ -205,8 +237,7 @@
                 <h3>Conformidade ESG</h3>
                 <p>
                   Relatórios auditáveis de impacto e destinação correta do
-                  resíduo, reduzindo passivos ambientais e atendendo critérios
-                  ESG (Environmental, Social and Governance).
+                  resíduo, reduzindo passivos e atendendo critérios ESG.
                 </p>
               </article>
               <article class="card">
@@ -221,8 +252,8 @@
                 </div>
                 <h3>Eficiência Operacional</h3>
                 <p>
-                  Sistema inteligente de conexão e logística otimizada reduzem
-                  custos e tempo para destinar materiais de forma adequada.
+                  Conexões e logística otimizadas para reduzir custos e tempo
+                  na destinação de materiais.
                 </p>
               </article>
               <article class="card">
@@ -237,9 +268,8 @@
                 </div>
                 <h3>Reputação de Marca</h3>
                 <p>
-                  Selo digital e vitrine de doações para comunicar publicamente
-                  seu compromisso com economia circular e responsabilidade
-                  socioambiental.
+                  Selo e vitrine de doações para comunicar seu compromisso com
+                  a economia circular.
                 </p>
               </article>
               <article class="card">
@@ -254,9 +284,8 @@
                 </div>
                 <h3>Rastreamento & Transparência</h3>
                 <p>
-                  Acompanhamento completo da doação do início ao fim com
-                  comprovantes digitais, histórico detalhado e total
-                  transparência no processo.
+                  Acompanhamento completo com histórico, comprovantes e
+                  transparência ponta a ponta.
                 </p>
               </article>
               <article class="card">
@@ -271,16 +300,16 @@
                 </div>
                 <h3>Impacto Social</h3>
                 <p>
-                  Fornece matéria-prima para cooperativas e projetos sociais,
-                  gerando mais renda, inclusão e oportunidades para comunidades
-                  locais.
+                  Matéria-prima para cooperativas e projetos, gerando renda e
+                  inclusão nas comunidades locais.
                 </p>
               </article>
             </div>
           </div>
         </section>
 
-        <section id="planos" class="section">
+        <!-- PLANOS -->
+        <section id="planos" class="section" data-section="planos">
           <h2>Planos</h2>
           <nav class="pricing-tabs" role="tablist" aria-label="Planos">
             <button
@@ -317,7 +346,7 @@
                 <li>Match com instituições</li>
                 <li>Relatório básico</li>
               </ul>
-              <p class="price">R$ 49,90/mês</p>
+              <p class="price">R$ 49,90 <span class="price-period">/mês</span></p>
               <a
                 class="btn btn-primary"
                 href="./assets/html/login.html#register"
@@ -334,7 +363,7 @@
                 <li>Histórico e exportações</li>
                 <li>Prioridade no mapa</li>
               </ul>
-              <p class="price">R$ 99,90/mês</p>
+              <p class="price">R$ 99,90 <span class="price-period">/mês</span></p>
               <a
                 class="btn btn-primary"
                 href="./assets/html/login.html#register"
@@ -351,7 +380,7 @@
                 <li>Relatórios avançados</li>
                 <li>Suporte prioritário</li>
               </ul>
-              <p class="price">R$ 199,90/mês</p>
+              <p class="price">R$ 199,90 <span class="price-period">/mês</span></p>
               <a
                 class="btn btn-primary"
                 href="./assets/html/login.html#register"
@@ -371,7 +400,7 @@
                 <li>Rastreamento básico</li>
                 <li>Relatório simples</li>
               </ul>
-              <p class="price">R$ 39,90/mês</p>
+              <p class="price">R$ 39,90 <span class="price-period">/mês</span></p>
               <a
                 class="btn btn-primary"
                 href="./assets/html/login.html#register"
@@ -388,7 +417,7 @@
                 <li>Exportações CSV/PDF</li>
                 <li>Destaque na vitrine</li>
               </ul>
-              <p class="price">R$ 89,90/mês</p>
+              <p class="price">R$ 89,90 <span class="price-period">/mês</span></p>
               <a
                 class="btn btn-primary"
                 href="./assets/html/login.html#register"
@@ -405,7 +434,7 @@
                 <li>Relatórios avançados</li>
                 <li>Suporte prioritário</li>
               </ul>
-              <p class="price">R$ 179,90/mês</p>
+              <p class="price">R$ 179,90 <span class="price-period">/mês</span></p>
               <a
                 class="btn btn-primary"
                 href="./assets/html/login.html#register"
@@ -429,17 +458,14 @@
                 <li>Acesso a solicitações</li>
                 <li>Rastreamento de entregas</li>
               </ul>
-              <p class="price">R$ 9,90 (uma vez)</p>
-              <a
-                class="btn btn-primary"
-                href="./assets/html/login.html#register"
+              <p class="price">R$ 9,90 <span class="price-period">(uma vez)</span></p>
+              <a class="btn btn-primary" href="./assets/html/login.html#register"
                 >Cadastrar</a
               >
             </div>
             <div class="price-card">
               <header>
                 <h3>Tabela de Frete</h3>
-                <span class="badge">Comissão 20%</span>
               </header>
               <ul class="benefit-list">
                 <li>Moto — R$ 7,90 por km</li>
@@ -454,7 +480,7 @@
           </div>
         </section>
 
-        <section class="section section-commitment">
+        <section class="section section-commitment" data-section="compromisso">
           <h2>Compromisso ambiental</h2>
           <div class="commitment-content">
             <div class="commitment-text">
@@ -481,14 +507,209 @@
         </section>
       </main>
 
+      <!-- FOOTER COM POLÍTICAS E CONTATOS -->
       <footer class="footer">
-        <div class="container">
-          © Ecolink – Rede Têxtil Sustentável •
-          <a href="./assets/html/login.html#login">Login</a> •
-          <a href="./assets/html/login.html#register">Cadastro</a>
+        <div class="container footer-grid">
+          <div class="footer-small">
+            <small>© <a href="https://portfolioraposoofc.vercel.app" target="_blank">Rapôso Web Dev</a> | Todos os direitos reservados</small>
+          </div>
+
+          <div class="footer-col">
+            <h4>Legal</h4>
+            <nav class="footer-links">
+              <a href="#politica-privacidade">Política de Privacidade</a>
+              <a href="#termos-uso">Termos de Uso</a>
+            </nav>
+          </div>
+
+          <div class="footer-col">
+            <h4>Contato</h4>
+            <ul class="contact-list">
+              <li>Telefone: <a href="tel:+5582999999999">(82) 99999-9999</a></li>
+              <li>Email: <a href="mailto:contato@ecolink.org">contato@ecolink.org</a></li>
+              <li>Instagram: <a href="https://instagram.com/ecolink" target="_blank" rel="noopener">@ecolink</a></li>
+            </ul>
+          </div>
         </div>
       </footer>
     </div>
+
+    <!-- MODAL DE DOAÇÕES VOLUNTÁRIAS (NOVO FLUXO COM CARDS) -->
+    <div class="donation-modal" id="donation-modal" aria-hidden="true" role="dialog" aria-labelledby="donation-title">
+      <div class="donation-backdrop" data-close-modal></div>
+
+      <div class="donation-content" role="document" aria-live="polite">
+        <button class="donation-close" aria-label="Fechar" data-close-modal>&times;</button>
+
+        <!-- PASSO 1: ESCOLHER PERFIL -->
+        <section class="modal-section" id="step-profile">
+          <h3 id="donation-title">Doações Voluntárias</h3>
+          <p>Como você deseja participar?</p>
+          <div class="cards-grid modal-cards">
+            <article class="card selectable" data-profile="doador" tabindex="0">
+              <div class="card-figure"><span aria-hidden="true">💚</span></div>
+              <h3>Doador(a)</h3>
+              <p>Quero contribuir com valor, roupas, alimentos ou itens.</p>
+            </article>
+            <article class="card selectable" data-profile="instituicao" tabindex="0">
+              <div class="card-figure"><span aria-hidden="true">🏫</span></div>
+              <h3>Instituição</h3>
+              <p>Preciso de apoio e quero solicitar uma doação.</p>
+            </article>
+          </div>
+        </section>
+
+        <!-- PASSO 2 (DOADOR): TIPO DE DOAÇÃO -->
+        <section class="modal-section hidden" id="step-donor-type">
+          <h3>Qual tipo de doação você quer fazer?</h3>
+          <div class="cards-grid modal-cards">
+            <article class="card selectable" data-donation="valor" tabindex="0">
+              <div class="card-figure"><span aria-hidden="true">💵</span></div>
+              <h3>Doar dinheiro</h3>
+              <p>Contribua com qualquer valor. Exibiremos os dados bancários.</p>
+            </article>
+            <article class="card selectable" data-donation="roupas" tabindex="0">
+              <div class="card-figure"><span aria-hidden="true">👕</span></div>
+              <h3>Roupas</h3>
+              <p>Peças novas ou usadas em bom estado.</p>
+            </article>
+            <article class="card selectable" data-donation="alimentos" tabindex="0">
+              <div class="card-figure"><span aria-hidden="true">🍚</span></div>
+              <h3>Alimentos</h3>
+              <p>Cestas básicas ou itens não perecíveis.</p>
+            </article>
+            <article class="card selectable" data-donation="itens" tabindex="0">
+              <div class="card-figure"><span aria-hidden="true">🎒</span></div>
+              <h3>Itens diversos</h3>
+              <p>Calçados, cobertores, material escolar, etc.</p>
+            </article>
+          </div>
+          <div class="donation-actions end">
+            <button class="btn btn-ghost" data-back>Voltar</button>
+          </div>
+        </section>
+
+        <!-- PASSO 3 (DOADOR): FORMULÁRIO GERAL -->
+        <section class="modal-section hidden" id="step-donor-form">
+          <h3 id="donor-form-title">Detalhes da doação</h3>
+
+          <div class="two-cols">
+            <div class="form-card">
+              <h4>Seus dados</h4>
+              <label>Nome
+                <input type="text" id="vf-name" placeholder="Seu nome completo" required />
+              </label>
+              <label>CPF/CNPJ
+                <input type="text" id="vf-doc" placeholder="000.000.000-00" required />
+              </label>
+              <label>E-mail
+                <input type="email" id="vf-email" placeholder="voce@email.com" required />
+              </label>
+              <label>Telefone
+                <input type="tel" id="vf-phone" placeholder="(00) 00000-0000" required />
+              </label>
+            </div>
+
+            <div class="form-card">
+              <h4>Endereço</h4>
+              <label>CEP
+                <input type="text" id="vf-cep" placeholder="00000-000" required />
+              </label>
+              <label>Logradouro
+                <input type="text" id="vf-logradouro" placeholder="Rua, Av., Travessa..." required />
+              </label>
+              <div class="row">
+                <label>Número
+                  <input type="text" id="vf-numero" required />
+                </label>
+                <label>Complemento
+                  <input type="text" id="vf-complemento" />
+                </label>
+              </div>
+              <div class="row">
+                <label>Bairro
+                  <input type="text" id="vf-bairro" required />
+                </label>
+                <label>Cidade
+                  <input type="text" id="vf-cidade" required />
+                </label>
+                <label>UF
+                  <input type="text" id="vf-uf" required />
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- CARTÕES DE OPÇÕES (mantém padrão visual) -->
+          <div class="cards-grid modal-cards compact" id="vf-options-cards">
+            <article class="card">
+              <h4>Tipo de doação</h4>
+              <p id="vf-type-text">—</p>
+              <small>Escolhido no passo anterior.</small>
+            </article>
+            <article class="card" id="vf-money-card" hidden>
+              <h4>Valor</h4>
+              <div class="donation-amounts inline">
+                <button class="amount" data-amount="20">R$ 20</button>
+                <button class="amount" data-amount="50">R$ 50</button>
+                <button class="amount" data-amount="100">R$ 100</button>
+                <button class="amount" data-amount="250">R$ 250</button>
+              </div>
+              <label class="donation-input">
+                <span>Outro valor</span>
+                <input type="number" id="vf-custom" min="5" step="5" placeholder="R$" />
+              </label>
+            </article>
+            <article class="card" id="vf-items-card" hidden>
+              <h4>Descrição dos itens</h4>
+              <textarea id="vf-items" rows="4" placeholder="Ex.: 10 camisas M, 5 calças jeans, etc."></textarea>
+            </article>
+          </div>
+
+          <!-- DADOS BANCÁRIOS (mostra só para doação em dinheiro) -->
+          <div class="form-card bank-card" id="vf-bank" hidden>
+            <h4>Dados bancários da Ecolink</h4>
+            <ul>
+              <li><strong>Banco:</strong> 260 – Nu Pagamentos S.A.</li>
+              <li><strong>Agência:</strong> 0001</li>
+              <li><strong>Conta:</strong> 12345678-9</li>
+              <li><strong>PIX (CNPJ):</strong> 12.345.678/0001-90</li>
+              <li><strong>Titular:</strong> Ecolink Tecnologia e Impacto LTDA</li>
+            </ul>
+            <small>Envie o comprovante para <a href="mailto:doacoes@ecolink.org">doacoes@ecolink.org</a>.</small>
+          </div>
+
+          <div class="donation-actions end">
+            <button class="btn btn-ghost" data-back>Voltar</button>
+            <button class="btn btn-primary" id="vf-submit">Finalizar</button>
+          </div>
+
+          <p class="donation-feedback" id="donation-feedback" role="status" aria-live="polite"></p>
+        </section>
+
+        <!-- PASSO 2 (INSTITUIÇÃO): FORMULÁRIO SIMPLIFICADO -->
+        <section class="modal-section hidden" id="step-institution-form">
+          <h3>Solicitar apoio</h3>
+          <div class="form-card">
+            <label>Nome da instituição
+              <input type="text" id="inst-name" required />
+            </label>
+            <label>CNPJ
+              <input type="text" id="inst-cnpj" required />
+            </label>
+            <label>Descrição da necessidade
+              <textarea id="inst-need" rows="4" placeholder="Descreva a urgência, quantidade, prazos..."></textarea>
+            </label>
+          </div>
+          <div class="donation-actions end">
+            <button class="btn btn-ghost" data-back>Voltar</button>
+            <button class="btn btn-primary" id="inst-submit">Enviar solicitação</button>
+          </div>
+          <p class="donation-feedback" id="inst-feedback" role="status" aria-live="polite"></p>
+        </section>
+      </div>
+    </div>
+
     <script src="./assets/js/main.js"></script>
   </body>
 </html>
