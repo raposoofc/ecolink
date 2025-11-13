@@ -66,10 +66,25 @@ body {
   font-weight: 900;
   letter-spacing: 0.4px;
   font-size: 20px;
+  color: #fff;
+  text-decoration: none;
 }
+
+.brand span {
+  color: inherit;
+}
+
+.brand:visited {
+  color: #fff;
+}
+
+.brand:hover {
+  opacity: 0.9;
+}
+
 .brand .logo {
-  width: 80px;
-  height: 80px;
+  width: 96px;
+  height: 96px;
   object-fit: contain;
 }
 
@@ -102,8 +117,8 @@ body {
 .nav-toggle {
   display: none;
   justify-self: end;
-  width: 42px;
-  height: 42px;
+  width: 40px;
+  height: 40px;
   border-radius: 10px;
   border: 1.5px solid rgba(255, 255, 255, 0.3);
   background: var(--glass-strong);
@@ -111,26 +126,33 @@ body {
   box-shadow: var(--shadow-1);
   position: relative;
   cursor: pointer;
+  align-items: center;
+  justify-content: center;
 }
+
+/* Centraliza os ícones dentro do botão */
 .nav-toggle .icon-burger,
 .nav-toggle .icon-close {
   position: absolute;
-  inset: 0;
-  display: grid;
-  place-items: center;
+  top: 50%;
+  left: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
+/* Linha central do hambúrguer */
 .nav-toggle .icon-burger {
   position: relative;
-}
-
-.nav-toggle .icon-burger {
   width: 20px;
   height: 2px;
   border-radius: 2px;
   background: #fff;
+  transform: translate(-50%, -900%) scale(1);
+  transition: opacity 0.2s ease, transform 0.2s ease;
 }
 
+/* Linhas de cima e de baixo */
 .nav-toggle .icon-burger::before,
 .nav-toggle .icon-burger::after {
   content: "";
@@ -143,24 +165,34 @@ body {
 }
 
 .nav-toggle .icon-burger::before {
-  transform: translateY(-6px);
+  top: -6px; /* tracinho de cima */
 }
 
 .nav-toggle .icon-burger::after {
-  transform: translateY(6px);
+  top: 6px; /* tracinho de baixo */
 }
 
+/* Ícone de fechar (X) */
 .nav-toggle .icon-close::before {
   content: "✕";
   font-size: 20px;
   line-height: 1;
-  display: none;
 }
+
+.nav-toggle .icon-close {
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0.8);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+/* Menu aberto: some o hambúrguer e aparece o X */
 .nav.open .nav-toggle .icon-burger {
-  display: none;
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0.8);
 }
-.nav.open .nav-toggle .icon-close::before {
-  display: block;
+.nav.open .nav-toggle .icon-close {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
 }
 
 /* Drawer mobile */
@@ -181,10 +213,15 @@ body {
     display: grid;
     gap: 8px;
     transform: translateY(-110%);
-    transition: transform 0.25s ease;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 100; /* garante que fica acima do conteúdo */
+    transition: transform 0.25s ease, opacity 0.25s ease;
   }
   .nav.open .primary-nav {
     transform: translateY(0);
+    opacity: 1;
+    pointer-events: auto;
   }
   .primary-nav a {
     width: 100%;
@@ -285,6 +322,10 @@ body {
   color: var(--primary-green);
   font-size: clamp(22px, 3vw, 30px);
   margin-bottom: 16px;
+}
+
+[data-section] {
+  scroll-margin-top: 96px;
 }
 
 /* ======= Cards grid ======= */
@@ -626,7 +667,7 @@ body {
   border-radius: 16px;
   padding: 20px;
   box-shadow: var(--shadow-2);
-  max-height:  80vh;
+  max-height: 80vh;
   overflow-y: auto;
 }
 .donation-close {
@@ -725,6 +766,11 @@ body {
 @media (min-width: 201px) and (max-width: 500px) {
   .container {
     width: 94vw;
+  }
+
+  .brand .logo {
+    width: 72px;
+    height: 72px;
   }
 
   .hero {

@@ -65,16 +65,18 @@
   function closeMenu(){
     header.classList.remove('open');
     toggle.setAttribute('aria-expanded','false');
+    toggle.setAttribute('aria-label','Abrir menu');
   }
 
   toggle.addEventListener('click', ()=>{
     const isOpen = header.classList.toggle('open');
     toggle.setAttribute('aria-expanded', String(isOpen));
+    toggle.setAttribute('aria-label', isOpen ? 'Fechar menu' : 'Abrir menu');
   });
 
   // Fechar ao clicar nos links (melhor UX)
   nav.addEventListener('click', (e)=>{
-    const el = e.target.closest('a');
+    const el = e.target.closest('a[href^="#"]');
     if(!el) return;
     closeMenu();
   });

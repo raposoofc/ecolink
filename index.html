@@ -6,28 +6,34 @@
       name="viewport"
       content="width=device-width, initial-scale=1, viewport-fit=cover"
     />
+    <meta author="Rodolpho Rapôso - https//portfolioraposoofc.vercel.app" />
+    <meta
+      description="Ecolink conecta doadores de resíduos têxteis a instituições e parceiros. Cadastre-se e gere impacto ambiental e social real."
+    />
     <title>Ecolink – Conecte, Reaproveite, Impacte</title>
     <meta
       name="description"
       content="Ecolink conecta doadores de resíduos têxteis a instituições e parceiros. Cadastre-se e gere impacto ambiental e social real."
     />
     <link rel="stylesheet" href="./assets/css/style.css" />
+    <link rel="shortcut icon" href="./assets/icon/favicon.ico" type="image/x-icon" />
   </head>
   <body>
     <div class="wrapper">
       <!-- HEADER FIXO COM TRANSPARÊNCIA E HAMBURGER -->
       <header class="container nav" data-sticky>
-        <div class="brand">
-          <a href="#"><img
+        <a href="#inicio" class="brand">
+          <img
             src="./assets/imgs/logo.png"
             alt="Logomarca da Ecolink"
             class="logo"
-          /></a>
-          <div>Ecolink</div>
-        </div>
+          />
+          <span>Ecolink</span>
+        </a>
 
         <button
           class="nav-toggle"
+          type="button"
           aria-label="Abrir menu"
           aria-controls="primary-nav"
           aria-expanded="false"
@@ -36,12 +42,15 @@
           <span class="icon-close" aria-hidden="true"></span>
         </button>
 
-        <nav id="primary-nav" class="primary-nav">
+        <nav
+          id="primary-nav"
+          class="primary-nav"
+          aria-label="Navegação principal"
+        >
           <a href="#como-funciona" data-spy="como-funciona">Como funciona?</a>
           <a href="#indicadores" data-spy="indicadores">Indicadores</a>
           <a href="#beneficios" data-spy="beneficios">Benefícios</a>
           <a href="#planos" data-spy="planos">Planos</a>
-          <a href="./assets/html/login.html#login">Entrar</a>
         </nav>
       </header>
 
@@ -52,8 +61,8 @@
             Dê um destino inteligente aos seus excedentes: conecte-se em minutos
             com instituições e parceiros que <strong>de fato</strong> precisam,
             reduza custos de descarte, <strong>corte emissões</strong> e
-            <strong>comprove seu impacto</strong> com relatórios ESG
-            auditáveis. Juntos, viramos o jogo da economia circular.
+            <strong>comprove seu impacto</strong> com relatórios ESG auditáveis.
+            Juntos, viramos o jogo da economia circular.
           </p>
           <div class="cta-row">
             <a class="btn btn-primary" href="./assets/html/login.html#register"
@@ -71,14 +80,26 @@
         </section>
 
         <!-- COMO FUNCIONA -->
-        <section id="como-funciona" class="section" data-section="como-funciona">
+        <section
+          id="como-funciona"
+          class="section"
+          data-section="como-funciona"
+        >
           <h2>Como funciona</h2>
           <div class="cards-grid como-grid">
             <article class="card">
               <div class="card-figure">
                 <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                  <path d="M12 12a5 5 0 100-10 5 5 0 000 10z" stroke="currentColor" stroke-width="2"/>
-                  <path d="M3 22a9 9 0 1118 0" stroke="currentColor" stroke-width="2"/>
+                  <path
+                    d="M12 12a5 5 0 100-10 5 5 0 000 10z"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  />
+                  <path
+                    d="M3 22a9 9 0 1118 0"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  />
                 </svg>
               </div>
               <h3>1° Cadastre-se</h3>
@@ -95,8 +116,18 @@
             <article class="card">
               <div class="card-figure">
                 <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                  <path d="M4 7h16M4 12h16M4 17h10" stroke="currentColor" stroke-width="2" />
-                  <circle cx="19" cy="17" r="2" stroke="currentColor" stroke-width="2"/>
+                  <path
+                    d="M4 7h16M4 12h16M4 17h10"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  />
+                  <circle
+                    cx="19"
+                    cy="17"
+                    r="2"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  />
                 </svg>
               </div>
               <h3>2° Match inteligente</h3>
@@ -113,9 +144,13 @@
             <article class="card">
               <div class="card-figure">
                 <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                  <path d="M3 7h11l4 4v6a2 2 0 01-2 2H5a2 2 0 01-2-2V7z" stroke="currentColor" stroke-width="2"/>
-                  <circle cx="7.5" cy="17.5" r="1.5" fill="currentColor"/>
-                  <circle cx="16.5" cy="17.5" r="1.5" fill="currentColor"/>
+                  <path
+                    d="M3 7h11l4 4v6a2 2 0 01-2 2H5a2 2 0 01-2-2V7z"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  />
+                  <circle cx="7.5" cy="17.5" r="1.5" fill="currentColor" />
+                  <circle cx="16.5" cy="17.5" r="1.5" fill="currentColor" />
                 </svg>
               </div>
               <h3>3° Logística</h3>
@@ -131,7 +166,11 @@
             <article class="card">
               <div class="card-figure">
                 <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                  <path d="M9 12l2 2 4-4M5 4h14v16H5z" stroke="currentColor" stroke-width="2"/>
+                  <path
+                    d="M9 12l2 2 4-4M5 4h14v16H5z"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  />
                 </svg>
               </div>
               <h3>4° Comprovação</h3>
@@ -220,7 +259,11 @@
         </section>
 
         <!-- BENEFÍCIOS -->
-        <section id="beneficios" class="section benefits-wrap" data-section="beneficios">
+        <section
+          id="beneficios"
+          class="section benefits-wrap"
+          data-section="beneficios"
+        >
           <h2>Benefícios para você e para o planeta</h2>
           <div class="carousel" data-carousel>
             <div class="carousel-track">
@@ -252,8 +295,8 @@
                 </div>
                 <h3>Eficiência Operacional</h3>
                 <p>
-                  Conexões e logística otimizadas para reduzir custos e tempo
-                  na destinação de materiais.
+                  Conexões e logística otimizadas para reduzir custos e tempo na
+                  destinação de materiais.
                 </p>
               </article>
               <article class="card">
@@ -268,8 +311,8 @@
                 </div>
                 <h3>Reputação de Marca</h3>
                 <p>
-                  Selo e vitrine de doações para comunicar seu compromisso com
-                  a economia circular.
+                  Selo e vitrine de doações para comunicar seu compromisso com a
+                  economia circular.
                 </p>
               </article>
               <article class="card">
@@ -346,7 +389,9 @@
                 <li>Match com instituições</li>
                 <li>Relatório básico</li>
               </ul>
-              <p class="price">R$ 49,90 <span class="price-period">/mês</span></p>
+              <p class="price">
+                R$ 49,90 <span class="price-period">/mês</span>
+              </p>
               <a
                 class="btn btn-primary"
                 href="./assets/html/login.html#register"
@@ -363,7 +408,9 @@
                 <li>Histórico e exportações</li>
                 <li>Prioridade no mapa</li>
               </ul>
-              <p class="price">R$ 99,90 <span class="price-period">/mês</span></p>
+              <p class="price">
+                R$ 99,90 <span class="price-period">/mês</span>
+              </p>
               <a
                 class="btn btn-primary"
                 href="./assets/html/login.html#register"
@@ -380,7 +427,9 @@
                 <li>Relatórios avançados</li>
                 <li>Suporte prioritário</li>
               </ul>
-              <p class="price">R$ 199,90 <span class="price-period">/mês</span></p>
+              <p class="price">
+                R$ 199,90 <span class="price-period">/mês</span>
+              </p>
               <a
                 class="btn btn-primary"
                 href="./assets/html/login.html#register"
@@ -400,7 +449,9 @@
                 <li>Rastreamento básico</li>
                 <li>Relatório simples</li>
               </ul>
-              <p class="price">R$ 39,90 <span class="price-period">/mês</span></p>
+              <p class="price">
+                R$ 39,90 <span class="price-period">/mês</span>
+              </p>
               <a
                 class="btn btn-primary"
                 href="./assets/html/login.html#register"
@@ -417,7 +468,9 @@
                 <li>Exportações CSV/PDF</li>
                 <li>Destaque na vitrine</li>
               </ul>
-              <p class="price">R$ 89,90 <span class="price-period">/mês</span></p>
+              <p class="price">
+                R$ 89,90 <span class="price-period">/mês</span>
+              </p>
               <a
                 class="btn btn-primary"
                 href="./assets/html/login.html#register"
@@ -434,7 +487,9 @@
                 <li>Relatórios avançados</li>
                 <li>Suporte prioritário</li>
               </ul>
-              <p class="price">R$ 179,90 <span class="price-period">/mês</span></p>
+              <p class="price">
+                R$ 179,90 <span class="price-period">/mês</span>
+              </p>
               <a
                 class="btn btn-primary"
                 href="./assets/html/login.html#register"
@@ -458,8 +513,12 @@
                 <li>Acesso a solicitações</li>
                 <li>Rastreamento de entregas</li>
               </ul>
-              <p class="price">R$ 9,90 <span class="price-period">(uma vez)</span></p>
-              <a class="btn btn-primary" href="./assets/html/login.html#register"
+              <p class="price">
+                R$ 9,90 <span class="price-period">(uma vez)</span>
+              </p>
+              <a
+                class="btn btn-primary"
+                href="./assets/html/login.html#register"
                 >Cadastrar</a
               >
             </div>
@@ -498,7 +557,7 @@
               </p>
             </div>
             <div class="commitment-image">
-              <img src="./assets/imgs/team-photo.jpg" alt="Equipe Ecolink" />
+              <img src="./assets/imgs/team-photo.jpeg" alt="Equipe Ecolink" />
               <p class="image-caption">
                 Nossa equipe dedicada à economia circular
               </p>
@@ -511,7 +570,13 @@
       <footer class="footer">
         <div class="container footer-grid">
           <div class="footer-small">
-            <small>© <a href="https://portfolioraposoofc.vercel.app" target="_blank">Rapôso Web Dev</a> | Todos os direitos reservados</small>
+            <small
+              >©
+              <a href="https://portfolioraposoofc.vercel.app" target="_blank"
+                >Rapôso Web Dev</a
+              >
+              | Todos os direitos reservados</small
+            >
           </div>
 
           <div class="footer-col">
@@ -525,9 +590,22 @@
           <div class="footer-col">
             <h4>Contato</h4>
             <ul class="contact-list">
-              <li>Telefone: <a href="tel:+5582999999999">(82) 99999-9999</a></li>
-              <li>Email: <a href="mailto:contato@ecolink.org">contato@ecolink.org</a></li>
-              <li>Instagram: <a href="https://instagram.com/ecolink" target="_blank" rel="noopener">@ecolink</a></li>
+              <li>
+                Telefone: <a href="tel:+5582999999999">(82) 99999-9999</a>
+              </li>
+              <li>
+                Email:
+                <a href="mailto:contato@ecolink.org">contato@ecolink.org</a>
+              </li>
+              <li>
+                Instagram:
+                <a
+                  href="https://instagram.com/ecolink"
+                  target="_blank"
+                  rel="noopener"
+                  >@ecolink</a
+                >
+              </li>
             </ul>
           </div>
         </div>
@@ -535,11 +613,19 @@
     </div>
 
     <!-- MODAL DE DOAÇÕES VOLUNTÁRIAS (NOVO FLUXO COM CARDS) -->
-    <div class="donation-modal" id="donation-modal" aria-hidden="true" role="dialog" aria-labelledby="donation-title">
+    <div
+      class="donation-modal"
+      id="donation-modal"
+      aria-hidden="true"
+      role="dialog"
+      aria-labelledby="donation-title"
+    >
       <div class="donation-backdrop" data-close-modal></div>
 
       <div class="donation-content" role="document" aria-live="polite">
-        <button class="donation-close" aria-label="Fechar" data-close-modal>&times;</button>
+        <button class="donation-close" aria-label="Fechar" data-close-modal>
+          &times;
+        </button>
 
         <!-- PASSO 1: ESCOLHER PERFIL -->
         <section class="modal-section" id="step-profile">
@@ -551,7 +637,11 @@
               <h3>Doador(a)</h3>
               <p>Quero contribuir com valor, roupas, alimentos ou itens.</p>
             </article>
-            <article class="card selectable" data-profile="instituicao" tabindex="0">
+            <article
+              class="card selectable"
+              data-profile="instituicao"
+              tabindex="0"
+            >
               <div class="card-figure"><span aria-hidden="true">🏫</span></div>
               <h3>Instituição</h3>
               <p>Preciso de apoio e quero solicitar uma doação.</p>
@@ -566,14 +656,24 @@
             <article class="card selectable" data-donation="valor" tabindex="0">
               <div class="card-figure"><span aria-hidden="true">💵</span></div>
               <h3>Doar dinheiro</h3>
-              <p>Contribua com qualquer valor. Exibiremos os dados bancários.</p>
+              <p>
+                Contribua com qualquer valor. Exibiremos os dados bancários.
+              </p>
             </article>
-            <article class="card selectable" data-donation="roupas" tabindex="0">
+            <article
+              class="card selectable"
+              data-donation="roupas"
+              tabindex="0"
+            >
               <div class="card-figure"><span aria-hidden="true">👕</span></div>
               <h3>Roupas</h3>
               <p>Peças novas ou usadas em bom estado.</p>
             </article>
-            <article class="card selectable" data-donation="alimentos" tabindex="0">
+            <article
+              class="card selectable"
+              data-donation="alimentos"
+              tabindex="0"
+            >
               <div class="card-figure"><span aria-hidden="true">🍚</span></div>
               <h3>Alimentos</h3>
               <p>Cestas básicas ou itens não perecíveis.</p>
@@ -596,44 +696,85 @@
           <div class="two-cols">
             <div class="form-card">
               <h4>Seus dados</h4>
-              <label>Nome
-                <input type="text" id="vf-name" placeholder="Seu nome completo" required />
+              <label
+                >Nome
+                <input
+                  type="text"
+                  id="vf-name"
+                  placeholder="Seu nome completo"
+                  required
+                />
               </label>
-              <label>CPF/CNPJ
-                <input type="text" id="vf-doc" placeholder="000.000.000-00" required />
+              <label
+                >CPF/CNPJ
+                <input
+                  type="text"
+                  id="vf-doc"
+                  placeholder="000.000.000-00"
+                  required
+                />
               </label>
-              <label>E-mail
-                <input type="email" id="vf-email" placeholder="voce@email.com" required />
+              <label
+                >E-mail
+                <input
+                  type="email"
+                  id="vf-email"
+                  placeholder="voce@email.com"
+                  required
+                />
               </label>
-              <label>Telefone
-                <input type="tel" id="vf-phone" placeholder="(00) 00000-0000" required />
+              <label
+                >Telefone
+                <input
+                  type="tel"
+                  id="vf-phone"
+                  placeholder="(00) 00000-0000"
+                  required
+                />
               </label>
             </div>
 
             <div class="form-card">
               <h4>Endereço</h4>
-              <label>CEP
-                <input type="text" id="vf-cep" placeholder="00000-000" required />
+              <label
+                >CEP
+                <input
+                  type="text"
+                  id="vf-cep"
+                  placeholder="00000-000"
+                  required
+                />
               </label>
-              <label>Logradouro
-                <input type="text" id="vf-logradouro" placeholder="Rua, Av., Travessa..." required />
+              <label
+                >Logradouro
+                <input
+                  type="text"
+                  id="vf-logradouro"
+                  placeholder="Rua, Av., Travessa..."
+                  required
+                />
               </label>
               <div class="row">
-                <label>Número
+                <label
+                  >Número
                   <input type="text" id="vf-numero" required />
                 </label>
-                <label>Complemento
+                <label
+                  >Complemento
                   <input type="text" id="vf-complemento" />
                 </label>
               </div>
               <div class="row">
-                <label>Bairro
+                <label
+                  >Bairro
                   <input type="text" id="vf-bairro" required />
                 </label>
-                <label>Cidade
+                <label
+                  >Cidade
                   <input type="text" id="vf-cidade" required />
                 </label>
-                <label>UF
+                <label
+                  >UF
                   <input type="text" id="vf-uf" required />
                 </label>
               </div>
@@ -657,12 +798,22 @@
               </div>
               <label class="donation-input">
                 <span>Outro valor</span>
-                <input type="number" id="vf-custom" min="5" step="5" placeholder="R$" />
+                <input
+                  type="number"
+                  id="vf-custom"
+                  min="5"
+                  step="5"
+                  placeholder="R$"
+                />
               </label>
             </article>
             <article class="card" id="vf-items-card" hidden>
               <h4>Descrição dos itens</h4>
-              <textarea id="vf-items" rows="4" placeholder="Ex.: 10 camisas M, 5 calças jeans, etc."></textarea>
+              <textarea
+                id="vf-items"
+                rows="4"
+                placeholder="Ex.: 10 camisas M, 5 calças jeans, etc."
+              ></textarea>
             </article>
           </div>
 
@@ -674,9 +825,15 @@
               <li><strong>Agência:</strong> 0001</li>
               <li><strong>Conta:</strong> 12345678-9</li>
               <li><strong>PIX (CNPJ):</strong> 12.345.678/0001-90</li>
-              <li><strong>Titular:</strong> Ecolink Tecnologia e Impacto LTDA</li>
+              <li>
+                <strong>Titular:</strong> Ecolink Tecnologia e Impacto LTDA
+              </li>
             </ul>
-            <small>Envie o comprovante para <a href="mailto:doacoes@ecolink.org">doacoes@ecolink.org</a>.</small>
+            <small
+              >Envie o comprovante para
+              <a href="mailto:doacoes@ecolink.org">doacoes@ecolink.org</a
+              >.</small
+            >
           </div>
 
           <div class="donation-actions end">
@@ -684,28 +841,47 @@
             <button class="btn btn-primary" id="vf-submit">Finalizar</button>
           </div>
 
-          <p class="donation-feedback" id="donation-feedback" role="status" aria-live="polite"></p>
+          <p
+            class="donation-feedback"
+            id="donation-feedback"
+            role="status"
+            aria-live="polite"
+          ></p>
         </section>
 
         <!-- PASSO 2 (INSTITUIÇÃO): FORMULÁRIO SIMPLIFICADO -->
         <section class="modal-section hidden" id="step-institution-form">
           <h3>Solicitar apoio</h3>
           <div class="form-card">
-            <label>Nome da instituição
+            <label
+              >Nome da instituição
               <input type="text" id="inst-name" required />
             </label>
-            <label>CNPJ
+            <label
+              >CNPJ
               <input type="text" id="inst-cnpj" required />
             </label>
-            <label>Descrição da necessidade
-              <textarea id="inst-need" rows="4" placeholder="Descreva a urgência, quantidade, prazos..."></textarea>
+            <label
+              >Descrição da necessidade
+              <textarea
+                id="inst-need"
+                rows="4"
+                placeholder="Descreva a urgência, quantidade, prazos..."
+              ></textarea>
             </label>
           </div>
           <div class="donation-actions end">
             <button class="btn btn-ghost" data-back>Voltar</button>
-            <button class="btn btn-primary" id="inst-submit">Enviar solicitação</button>
+            <button class="btn btn-primary" id="inst-submit">
+              Enviar solicitação
+            </button>
           </div>
-          <p class="donation-feedback" id="inst-feedback" role="status" aria-live="polite"></p>
+          <p
+            class="donation-feedback"
+            id="inst-feedback"
+            role="status"
+            aria-live="polite"
+          ></p>
         </section>
       </div>
     </div>
