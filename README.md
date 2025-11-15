@@ -61,15 +61,17 @@ Acesse a versão final do projeto online:
 
 Para executar e inspecionar o código-fonte:
 
-1.  **Clone o repositório:**
+1°  **Clone o repositório:**
     ```bash
     git clone [https://github.com/raposoofc/ecolink](https://github.com/raposoofc/ecolink)
     ```
-2.  **Abra o projeto:**
+    
+2°  **Abra o projeto:**
     ```bash
     cd ecolink
     ```
-3.  **Execute:**
+
+3°  **Execute:**
     Abra o arquivo `index.html` (ou o arquivo principal) diretamente em seu navegador.
 
 ---
